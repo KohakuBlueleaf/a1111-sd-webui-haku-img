@@ -81,22 +81,16 @@ global_data = {
 
 
 def on_change(name, runner=None):
-    def foo(x=None):
+    def foo(x=None, *args):
         global global_data
         if x is not None:
             global_data[name] = x
         if runner is not None:
-            return runner()
+            return runner(*args)
     return foo
 
 
-def run():
-    img1 = global_data['img1']
-    img2 = global_data['img2']
-    alpha = global_data['alpha']
-    m2_str = global_data['m2_str']
-    m2_blur = global_data['m2_blur']
-    
+def run(img1, img2, alpha, m2_str, m2_blur):
     print(alpha, m2_str, m2_blur)
     image1 = Image.fromarray(img1)
     # mask1 = Image.fromarray(255-img1['mask'][:,:,0], mode='L')
@@ -118,23 +112,17 @@ def run():
     return Image.fromarray(res, mode='RGB')
 
 
-def blur():
-    img3 = global_data['img3']
-    img_blur = global_data['img_blur']
-    
+def blur(img3, img_blur):
     img = Image.fromarray(img3)
     blur = ImageFilter.GaussianBlur(img_blur)
     return img.filter(blur)
 
 
-def run_color():
-    img1 = global_data['imgc']
-    bright = global_data['bright']/100
-    contrast = global_data['contrast']/100
-    temp = global_data['temp']/100
-    sat = global_data['sat']/100
-    hue = global_data['hue']
-    gamma = global_data['gamma']
+def run_color(img1, bright, contrast, sat, temp, hue, gamma):
+    bright /=100
+    contrast /=100
+    temp /=100
+    sat /=100
     
     #brigtness
     res = Image.fromarray(img1)
@@ -222,28 +210,35 @@ def add_tab():
         imgc_h_slider.change(None, imgc_h_slider, _js=f'get_change_height("#haku_imgc")')
         
         # blend
+        all_blend_input = [image_main, image_mask, alpha_slider, mask2_slider, mask2_blur_slider]
         image_main.change(on_change("img1"), image_main)
         image_mask.change(on_change("img2"), image_mask)
         
-        alpha_slider.change(on_change("alpha", run), alpha_slider, image_out)
-        mask2_slider.change(on_change("m2_str", run), mask2_slider, image_out)
-        mask2_blur_slider.change(on_change("m2_blur", run), mask2_blur_slider, image_out)
-        expand_btn.click(run, outputs=image_out)
+        alpha_slider.change(on_change("alpha", run), [alpha_slider]+all_blend_input, image_out)
+        mask2_slider.change(on_change("m2_str", run), [mask2_slider]+all_blend_input, image_out)
+        mask2_blur_slider.change(on_change("m2_blur", run), [mask2_blur_slider]+all_blend_input, image_out)
+        expand_btn.click(run, all_blend_input, outputs=image_out)
         
         #blur
+        all_blur_input = [image_main2, blur_slider]
         image_main2.change(on_change("img3"), image_main2)
-        blur_slider.change(on_change("img_blur", blur), blur_slider, image_out)
-        blur_btn.click(blur, outputs=image_out)
+        blur_slider.change(on_change("img_blur", blur), [blur_slider]+all_blur_input, image_out)
+        blur_btn.click(blur, all_blur_input, outputs=image_out)
         
         #color
+        all_color_input = [
+            image_color, 
+            bright_slider, contrast_slider, sat_slider, 
+            temp_slider, hue_slider, gamma_slider
+        ]
         image_color.change(on_change('imgc'), image_color, image_out)
-        bright_slider.change(on_change('bright', run_color), bright_slider, image_out)
-        contrast_slider.change(on_change('contrast', run_color), contrast_slider, image_out)
-        sat_slider.change(on_change('sat', run_color), sat_slider, image_out)
-        temp_slider.change(on_change('temp', run_color), temp_slider, image_out)
-        hue_slider.change(on_change('hue', run_color), hue_slider, image_out)
-        gamma_slider.change(on_change('gamma', run_color), gamma_slider, image_out)
-        color_btn.click(run_color, outputs=image_out)
+        bright_slider.change(on_change('bright', run_color), [bright_slider]+all_color_input, image_out)
+        contrast_slider.change(on_change('contrast', run_color), [contrast_slider]+all_color_input, image_out)
+        sat_slider.change(on_change('sat', run_color), [sat_slider]+all_color_input, image_out)
+        temp_slider.change(on_change('temp', run_color), [temp_slider]+all_color_input, image_out)
+        hue_slider.change(on_change('hue', run_color), [hue_slider]+all_color_input, image_out)
+        gamma_slider.change(on_change('gamma', run_color), [gamma_slider]+all_color_input, image_out)
+        color_btn.click(run_color, all_color_input, outputs=image_out)
         
         for btn1, btn2, btn3, btn4, img_src in all_btns:
             print(img_src)
