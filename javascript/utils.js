@@ -16,5 +16,6 @@ function change_img_height(id, height){
 }
 
 function get_change_height(id){
+  id = "div[id*='" + id + "']"
   return (height)=>{change_img_height(id, height)}
 }

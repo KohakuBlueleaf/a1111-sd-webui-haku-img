@@ -28,15 +28,12 @@ function switch_to_tab(tab){
 
 
 function switch_to_haku_img(){
-  return switch_to_tab('tab_haku_img')
-}
-function switch_to_haku_img_blur(){
   switch_to_tab('tab_haku_img')
-  return switch_to_haku_blur()
+  return switch_to_haku_blend()
 }
-function switch_to_haku_img_color(){
+function switch_to_haku_img_eff(){
   switch_to_tab('tab_haku_img')
-  return switch_to_haku_color()
+  return switch_to_haku_eff()
 }
 
 function switch_to_inner_tab(tab){
@@ -65,9 +62,6 @@ function switch_to_inner_tab(tab){
 function switch_to_haku_blend(){
   return switch_to_inner_tab('haku_blend')
 }
-function switch_to_haku_blur(){
-  return switch_to_inner_tab('haku_blur')
-}
-function switch_to_haku_color(){
-  return switch_to_inner_tab('haku_color')
+function switch_to_haku_eff(){
+  return switch_to_inner_tab('haku_eff')
 }
