@@ -51,7 +51,7 @@ class Script(scripts.Script):
                     with gr.Accordion('Send to Blend', open=False):
                         btns = []
                         for i in range(layers):
-                            btn1 = gr.Button(f"Send to Layer{i}")
+                            btn1 = gr.Button(f"Send to Layer{i+1}")
                             btn1.click(None, _js=f"switch_to_haku_img")
                             btns.append(btn1)
                 with gr.Column():
