@@ -48,14 +48,14 @@ class Script(scripts.Script):
         if val == "Send to extras":
             with gr.Accordion('HakuImg', open=False):
                 with gr.Column():
-                    with gr.Accordion('>> 疊圖', open=False):
+                    with gr.Accordion('Send to Blend', open=False):
                         btns = []
                         for i in range(layers):
-                            btn1 = gr.Button(f">> 圖層{i}")
+                            btn1 = gr.Button(f"Send to Layer{i}")
                             btn1.click(None, _js=f"switch_to_haku_img")
                             btns.append(btn1)
                 with gr.Column():
-                    btn3 = gr.Button(">> 效果")
+                    btn3 = gr.Button("Send to Effect")
                     btn3.click(None, _js=f"switch_to_haku_img_eff")
             
             all_btns.append((btns, btn3, img_src))
