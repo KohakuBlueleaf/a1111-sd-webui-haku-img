@@ -2,10 +2,13 @@
 An Image utils extension for A1111's sd-webui
 
 
+## Example:
+https://user-images.githubusercontent.com/59680068/212915298-92157d15-e7e0-40b0-9b89-74da3eb4ea18.mp4
+
+
 ## blend
 ![image](https://user-images.githubusercontent.com/59680068/212818517-74c83a03-8083-4cc2-b60b-439e451c62ad.png)
 ![image](https://user-images.githubusercontent.com/59680068/212818530-f265fe56-27d3-4809-9bdb-49a6d629b9de.png)
-
 
 
 ## color
