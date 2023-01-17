@@ -59,9 +59,10 @@ class Script(scripts.Script):
                     btn3.click(None, _js=f"switch_to_haku_img_eff")
             
             all_btns.append((btns, btn3, img_src))
-
+    
     def ui(self, is_img2img):
         return []
+
 
 def add_tab():
     print('add tab')
@@ -69,48 +70,48 @@ def add_tab():
         with FormRow().style(equal_height=False):
             with gr.Column():
                 with gr.Tabs(elem_id="haku_blend_tabs"):
-                    with gr.TabItem('疊圖', elem_id='haku_blend'):
+                    with gr.TabItem('Blend', elem_id='haku_blend'):
                         all_layers = []
                         all_alphas = []
                         all_mask_str = []
                         all_mask_blur = []
+                        img_blend_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_blend')
                         with gr.Tabs(elem_id="haku_blend_layers_tabs"):
-                            img_blend_h_slider = gr.Slider(160, 1280, 320, step=10, label="圖片預覽高度", elem_id='haku_img_h_blend')
                             for i in range(1, layers+1):
-                                with gr.TabItem(f'圖層{i}', elem_id=f'haku_blend_layer{i}'):
+                                with gr.TabItem(f'Layer{i}', elem_id=f'haku_blend_Layer{i}'):
                                     all_layers.append(
-                                        gr.ImageMask(type='numpy', label=f"圖層{i}", elem_id=f'haku_img_blend{i}')
+                                        gr.ImageMask(type='numpy', label=f"Layer{i}", elem_id=f'haku_img_blend{i}')
                                     )
                                     all_alphas.append(
-                                        gr.Slider(0, 1, 0.5, label=f"圖層{i}透明度")
+                                        gr.Slider(0, 1, 0.5, label=f"Layer{i} transparent")
                                     )
                                     all_mask_blur.append(
-                                        gr.Slider(0, 32, 4, label=f"圖層{i}蒙版模糊")
+                                        gr.Slider(0, 32, 4, label=f"Layer{i} mask blur")
                                     )
                                     all_mask_str.append(
-                                        gr.Slider(0, 1, 1, label=f"圖層{i}蒙版強度")
+                                        gr.Slider(0, 1, 1, label=f"Layer{i} mask strength")
                                     )
-                        bg_color = gr.ColorPicker('#FFFFFF', label='背景顏色')
+                        bg_color = gr.ColorPicker('#FFFFFF', label='background color')
                         expand_btn = gr.Button("refresh", variant="primary")
                     
-                    with gr.TabItem('效果', elem_id='haku_eff'):
-                        img_eff_h_slider = gr.Slider(160, 1280, 320, step=10, label="圖片預覽高度", elem_id='haku_img_h_eff')
-                        image_eff = gr.Image(type='numpy', label="圖", elem_id='haku_img_eff', show_label=False)
+                    with gr.TabItem('Effect', elem_id='haku_eff'):
+                        img_eff_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_eff')
+                        image_eff = gr.Image(type='numpy', label="img", elem_id='haku_img_eff', show_label=False)
                         with gr.Tabs(elem_id='effect_tabs'):
-                            with gr.TabItem('色彩', elem_id='haku_color'):
-                                temp_slider = gr.Slider(-100, 100, 0, step=1, label="色溫")
-                                hue_slider = gr.Slider(-90, 90, 0, step=1, label="色調")
-                                bright_slider = gr.Slider(-100, 100, 0, step=1, label="亮度")
-                                contrast_slider = gr.Slider(-100, 100, 0, step=1, label="對比度")
-                                sat_slider = gr.Slider(-100, 100, 0, step=1, label="飽和度")
+                            with gr.TabItem('Color', elem_id='haku_color'):
+                                temp_slider = gr.Slider(-100, 100, 0, step=1, label="temparature")
+                                hue_slider = gr.Slider(-90, 90, 0, step=1, label="hue")
+                                bright_slider = gr.Slider(-100, 100, 0, step=1, label="brightness")
+                                contrast_slider = gr.Slider(-100, 100, 0, step=1, label="contrast")
+                                sat_slider = gr.Slider(-100, 100, 0, step=1, label="saturation")
                                 gamma_slider = gr.Slider(0.2, 2.2, 1, step=0.1, label="Gamma")
                                 color_btn = gr.Button("refresh", variant="primary")
                             
-                            with gr.TabItem('模糊', elem_id='haku_blur'):
-                                blur_slider = gr.Slider(0, 32, 8, label="模糊強度")
+                            with gr.TabItem('Blur', elem_id='haku_blur'):
+                                blur_slider = gr.Slider(0, 32, 8, label="blur")
                                 blur_btn = gr.Button("refresh", variant="primary")
                             
-                            with gr.TabItem('線稿', elem_id='haku_sketch'):
+                            with gr.TabItem('Sketch', elem_id='haku_sketch'):
                                 sk_sigma = gr.Slider(1, 5, 1.4, step=0.05, label='sigma')
                                 sk_k_sigma = gr.Slider(1, 5, 1.6, step=0.05, label='k_sigma')
                                 sk_eps = gr.Slider(-0.2, 0.2, -0.03, step=0.005, label='epsilon')
@@ -120,7 +121,7 @@ def add_tab():
                                 sk_scale = gr.Checkbox(False, label='use scale')
                                 sketch_btn = gr.Button("refresh", variant="primary")
                     
-                    with gr.TabItem('額外功能'):
+                    with gr.TabItem('Other'):
                         with gr.Tabs(elem_id='function list'):
                             with gr.TabItem('InOutPaint'):
                                 iop_mask = gr.Image(type='pil', visible=False)
@@ -134,13 +135,13 @@ def add_tab():
                 )
                 with gr.Row():
                     send_btns = gpc.create_buttons(["img2img", "inpaint", "extras"])
-                    send_ip_b = gr.Button(">> inpaint upload", elem_id='send_inpaint_base')
+                    send_ip_b = gr.Button("Send to inpaint upload", elem_id='send_inpaint_base')
                 with gr.Row():
-                    with gr.Accordion('>> 疊圖'):
+                    with gr.Accordion('Send to Blend', open=False):
                         send_blends = []
                         for i in range(1, layers+1):
-                            send_blends.append(gr.Button(f">> 圖層{i}", elem_id=f'send_haku_blend{i}'))
-                    send_eff = gr.Button(">> 效果", elem_id='send_haku_blur')
+                            send_blends.append(gr.Button(f"Send to Layer{i}", elem_id=f'send_haku_blend{i}'))
+                    send_eff = gr.Button("Send to Effect", elem_id='send_haku_blur')
         img_blend_h_slider.change(None, img_blend_h_slider, _js=f'get_change_height("haku_img_blend")')
         img_eff_h_slider.change(None, img_eff_h_slider, _js=f'get_change_height("haku_img_eff")')
         
