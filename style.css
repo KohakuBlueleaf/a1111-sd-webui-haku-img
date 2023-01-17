@@ -1,0 +1,21 @@
+#haku_blend_layers_tabs {
+  display: block;
+}
+
+#haku_blend_layers_tabs > div{
+  border: none;
+  margin-left: 6em;
+}
+
+#haku_blend_layers_tabs > div.flex-wrap{
+  float: left;
+  display: block;
+  margin-left: 0;
+  width: 6em;
+}
+
+#haku_blend_layers_tabs > div.flex-wrap button{
+  display: block;
+  border-radius: 0;
+  text-align: left;
+}
