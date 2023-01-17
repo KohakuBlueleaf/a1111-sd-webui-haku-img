@@ -1,5 +1,5 @@
 function change_img_height(id, height){
-  query = id+', '+id+' .h-60, '+id+' .h-60 div, '+id+' .h-60 div img'
+  query = id+', '+id+' .h-60, '+id+' .h-60 > div, '+id+' .h-60 div img'
   console.log(query)
   gradioApp().querySelectorAll(query).forEach((x)=>{
     x.style.height = Math.floor(height)+'px'
@@ -18,4 +18,10 @@ function change_img_height(id, height){
 function get_change_height(id){
   id = "div[id*='" + id + "']"
   return (height)=>{change_img_height(id, height)}
+}
+
+
+function switch_to_inpaint_upload(){
+  switch_to_img2img_tab(4);
+  return args_to_array(arguments);
 }

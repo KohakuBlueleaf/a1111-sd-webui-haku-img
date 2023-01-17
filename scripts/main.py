@@ -9,116 +9,22 @@ from PIL import Image, ImageFilter, ImageEnhance, ImageColor
 import cv2
 import numpy as np
 
-
-
-'''
-Functional part
-'''
-
-'''Blend'''
-def run(bg, *args):
-    assert len(args)%4==0
-    chunks = [args[i*layers: i*layers+layers] for i in range(4)]
-    h, w, c = [i['image'] for i in chunks[-1] if i is not None][0].shape
-    base_img = np.array(Image.new(mode="RGB", size=(w, h), color=ImageColor.getcolor(bg, 'RGB')))
-    base_img = base_img.astype(np.float64)
-    
-    for alpha, mask_blur, mask_str, img in zip(*chunks):
-        if img is None or img['image'] is None: continue
-        img_now = Image.fromarray(img['image']).resize((w, h))
-        mask = Image.fromarray(img['mask'][:,:,0], mode='L')
-        
-        img_now = np.array(img_now).astype(np.float64)
-        mask = mask.resize((w, h)).filter(ImageFilter.GaussianBlur(mask_blur))
-        mask = np.expand_dims(np.array(mask)*mask_str/255, 2)
-        
-        img_now = base_img*mask + img_now*(1-mask)
-        base_img = base_img*alpha + img_now*(1-alpha)
-    return Image.fromarray(base_img.astype(np.uint8), mode='RGB')
-
-
-'''Blur'''
-def blur(img3, img_blur):
-    img = Image.fromarray(img3)
-    blur = ImageFilter.GaussianBlur(img_blur)
-    return img.filter(blur)
-
-
-'''Color'''
-def run_color(img1, bright, contrast, sat, temp, hue, gamma):
-    bright /=100
-    contrast /=100
-    temp /=100
-    sat /=100
-    
-    #brigtness
-    res = Image.fromarray(img1)
-    brightness = ImageEnhance.Brightness(res)
-    res = brightness.enhance(1+bright)
-    
-    #contrast
-    cont = ImageEnhance.Contrast(res)
-    res = cont.enhance(1+contrast)
-    res = np.array(res).astype(np.float32)
-    
-    #temp
-    if temp>0:
-        res[:, :, 0] *= 1+temp
-        res[:, :, 1] *= 1+temp*0.4
-    elif temp<0:
-        res[:, :, 2] *= 1-temp
-    res = np.clip(res, 0, 255)/255
-    res = np.clip(np.power(res, gamma), 0, 1)
-    
-    #saturation
-    print(res.shape)
-    sat_real = 1 + sat
-    hls_img = cv2.cvtColor(res, cv2.COLOR_RGB2HLS)
-    hls_img[:, :, 2] = np.clip(sat_real*hls_img[:, :, 2], 0, 1)
-    res = cv2.cvtColor(hls_img, cv2.COLOR_HLS2RGB)*255
-    
-    # hue
-    hsv_img = cv2.cvtColor(res, cv2.COLOR_RGB2HSV)
-    print(np.max(hsv_img[:, :, 0]), np.max(hsv_img[:, :, 1]), np.max(hsv_img[:, :, 2]))
-    hsv_img[:, :, 0] = (hsv_img[:, :, 0]+hue)%360
-    
-    res = cv2.cvtColor(hsv_img, cv2.COLOR_HSV2RGB)
-    
-    res = res.astype(np.uint8)
-    res = Image.fromarray(res, mode='RGB')
-    return res
-
-
-'''sketch'''
-def fix_float(val, eps=1e-3):
-    return float(val)-eps
-
-def dog_filter(img, kernel=0, sigma=1.4, k_sigma=1.6, gamma=1):
-    g1 = cv2.GaussianBlur(img, (kernel,kernel), sigma)
-    g2 = cv2.GaussianBlur(img, (kernel,kernel), sigma*k_sigma)
-    return g1 - fix_float(gamma) * g2
-
-def xdog(img, sigma, k_sigma, eps, phi, gamma, color, scale=True):
-    if color=='gray':
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    
-    dog = dog_filter(img, 0, sigma, k_sigma, gamma)
-    dog = dog/dog.max()
-    e = 1+np.tanh(fix_float(phi) * (dog-fix_float(eps)))
-    e[e>=1] = 1
-    
-    if color=='gray':
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-    
-    if scale:
-        return Image.fromarray((e*255).astype('uint8'))
-    else:
-        return Image.fromarray(e.astype('uint8')*255)
+from hakuimg import blend
+from hakuimg import color
+from hakuimg import blur
+from hakuimg import sketch
 
 
 '''
 UI part
 '''
+
+inpaint_base: gr.Image
+inpaint_mask: gr.Image
+all_btns: list[tuple[gr.Button, ...]] = []
+layers = 5
+
+
 class Script(scripts.Script):
     def title(self):
         return "HakuBlend"
@@ -127,22 +33,17 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def after_component(self, component, **kwargs):
-        global image_main, image_mask, img_src, all_btns
-        # Add button to both txt2img and img2img tabs
-        # print(type(component), kwargs.get("value"), kwargs.keys())
+        global img_src, all_btns, inpaint_base, inpaint_mask
         if isinstance(component, gr.Gallery):
             if component.elem_id in {'txt2img_gallery', 'img2img_gallery'}:
                 img_src = component
-            print(kwargs.get('label'), kwargs.get('elem_id'), component.elem_id)
-        
-        # if isinstance(component, gr.Image):
-        #     if component.elem_id in {'txt2img_preview', 'img2img_preview'}:
-        #         img_src = component
         
         val = kwargs.get("value", "")
-        id = kwargs.get("elem_id")
-        if 'extras' in str(val).lower() or 'extra' in str(id).lower():
-            print('component val: ', val, kwargs.get("elem_id"))
+        id = kwargs.get("elem_id", "")
+        if id=='img_inpaint_base':
+            inpaint_base = component
+        if id=='img_inpaint_mask':
+            inpaint_mask = component
         
         if val == "Send to extras":
             with gr.Accordion('HakuImg', open=False):
@@ -161,9 +62,6 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         return []
-
-all_btns: list[tuple[gr.Button, ...]] = []
-layers = 5
 
 def add_tab():
     print('add tab')
@@ -221,6 +119,11 @@ def add_tab():
                                 sk_color = gr.Radio(['gray', 'rgb'], value='gray', label='color mode')
                                 sk_scale = gr.Checkbox(False, label='use scale')
                                 sketch_btn = gr.Button("refresh", variant="primary")
+                    
+                    with gr.TabItem('額外功能'):
+                        with gr.Tabs(elem_id='function list'):
+                            with gr.TabItem('InOutPaint'):
+                                iop_mask = gr.Image(type='pil', visible=False)
             
             with gr.Column():
                 image_out = gr.Image(
@@ -231,6 +134,7 @@ def add_tab():
                 )
                 with gr.Row():
                     send_btns = gpc.create_buttons(["img2img", "inpaint", "extras"])
+                    send_ip_b = gr.Button(">> inpaint upload", elem_id='send_inpaint_base')
                 with gr.Row():
                     with gr.Accordion('>> 疊圖'):
                         send_blends = []
@@ -245,13 +149,13 @@ def add_tab():
         all_blend_set += all_alphas+all_mask_blur+all_mask_str
         all_blend_input = all_blend_set + all_layers
         for component in all_blend_set:
-            component.change(run, all_blend_input, image_out)
-        expand_btn.click(run, all_blend_input, image_out)
+            component.change(blend.run(layers), all_blend_input, image_out)
+        expand_btn.click(blend.run(layers), all_blend_input, image_out)
         
         #blur
         all_blur_input = [image_eff, blur_slider]
-        blur_slider.change(blur, all_blur_input, outputs=image_out)
-        blur_btn.click(blur, all_blur_input, outputs=image_out)
+        blur_slider.change(blur.run, all_blur_input, outputs=image_out)
+        blur_btn.click(blur.run, all_blur_input, outputs=image_out)
         
         #color
         all_color_set = [
@@ -261,8 +165,8 @@ def add_tab():
         ]
         all_color_input = [image_eff] + all_color_set
         for component in all_color_set:
-            component.change(run_color, all_color_input, image_out)
-        color_btn.click(run_color, all_color_input, image_out)
+            component.change(color.run, all_color_input, image_out)
+        color_btn.click(color.run, all_color_input, image_out)
         
         #sketch
         all_sk_set = [
@@ -270,19 +174,26 @@ def add_tab():
         ]
         all_sk_input = [image_eff] + all_sk_set
         for component in all_sk_set:
-            component.change(xdog, all_sk_input, image_out)
-        sketch_btn.click(xdog, all_sk_input, image_out)
+            component.change(sketch.run, all_sk_input, image_out)
+        sketch_btn.click(sketch.run, all_sk_input, image_out)
         
+        #send
         for btns, btn3, img_src in all_btns:
             for btn, img in zip(btns, all_layers):
                 btn.click(gpc.image_from_url_text, img_src, img, _js="extract_image_from_gallery")
             btn3.click(gpc.image_from_url_text, img_src, image_eff, _js="extract_image_from_gallery")
         
-        
         gpc.bind_buttons(send_btns, image_out, None)
         for btn, img in zip(btns, all_layers):
             btn.click(lambda x:x, image_out, img)
             btn.click(None, _js = 'switch_to_haku_blend')
+        
+        for layer, send_btn in zip(all_layers, send_blends):
+            send_btn.click(lambda x:x, image_out, layer)
+            send_btn.click(None, _js='switch_to_haku_blend')
+        
+        send_ip_b.click(lambda *x:x, [image_out, iop_mask], [inpaint_base, inpaint_mask])
+        send_ip_b.click(None, _js = 'switch_to_inpaint_upload')
             
         send_eff.click(lambda x:x, image_out, image_eff)
         send_eff.click(None, _js = 'switch_to_haku_eff')
