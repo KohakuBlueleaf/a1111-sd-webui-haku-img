@@ -1,7 +1,6 @@
 # a1111-sd-webui-haku-img
 An Image utils extension for A1111's sd-webui
 
-暫時只支援正體中文!
 
 ## blend
 ![image](https://user-images.githubusercontent.com/59680068/212818517-74c83a03-8083-4cc2-b60b-439e451c62ad.png)
