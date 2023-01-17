@@ -4,11 +4,18 @@ An Image utils extension for A1111's sd-webui
 暫時只支援正體中文!
 
 ## blend
-![image](https://user-images.githubusercontent.com/59680068/210696162-22b842fa-6227-4bf4-a4ab-c9e0d6959760.png)
+![image](https://user-images.githubusercontent.com/59680068/212818517-74c83a03-8083-4cc2-b60b-439e451c62ad.png)
+![image](https://user-images.githubusercontent.com/59680068/212818530-f265fe56-27d3-4809-9bdb-49a6d629b9de.png)
 
-## blur
-![image](https://user-images.githubusercontent.com/59680068/210696226-af62ac92-6a58-45e8-b765-57c85714a952.png)
 
 
 ## color
-![image](https://user-images.githubusercontent.com/59680068/210696357-4288c990-8f65-4508-97e0-df651ae1c547.png)
+![image](https://user-images.githubusercontent.com/59680068/212818319-fe841355-7457-41f4-b313-15babe4ceaa0.png)
+
+
+## blur
+![image](https://user-images.githubusercontent.com/59680068/212818343-4754764a-cd3d-4591-a823-a065bdc7b934.png)
+
+
+## sketch
+![image](https://user-images.githubusercontent.com/59680068/212818424-446ec5f6-246f-4bdd-80cb-8b8ff171cca4.png)
