@@ -24,4 +24,4 @@ https://user-images.githubusercontent.com/59680068/212915298-92157d15-e7e0-40b0-
 
 
 ## pixelize
-![image](https://user-images.githubusercontent.com/59680068/213517417-1ee275e0-e265-40df-ad92-2e9d973f6a82.png)
+![image](https://user-images.githubusercontent.com/59680068/213517939-8e009382-0f03-4c95-9d25-fe88cae8d629.png)
