@@ -65,3 +65,9 @@ function switch_to_haku_blend(){
 function switch_to_haku_eff(){
   return switch_to_inner_tab('haku_eff')
 }
+
+
+function switch_to_inpaint_upload(){
+  switch_to_img2img_tab(4);
+  return args_to_array(arguments);
+}

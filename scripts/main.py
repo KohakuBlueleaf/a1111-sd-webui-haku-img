@@ -9,10 +9,13 @@ from PIL import Image, ImageFilter, ImageEnhance, ImageColor
 import cv2
 import numpy as np
 
-from hakuimg import blend
-from hakuimg import color
-from hakuimg import blur
-from hakuimg import sketch
+from hakuimg import(
+    blend,
+    blur,
+    color,
+    sketch,
+    pixel
+)
 
 
 '''
@@ -120,6 +123,13 @@ def add_tab():
                                 sk_color = gr.Radio(['gray', 'rgb'], value='gray', label='color mode')
                                 sk_scale = gr.Checkbox(False, label='use scale')
                                 sketch_btn = gr.Button("refresh", variant="primary")
+                            
+                            with gr.TabItem('Pixelize', elem_id='haku_Pixelize'):
+                                p_colors = gr.Slider(2, 128, 16, step=1, label='colors')
+                                p_dot_size = gr.Slider(2, 32, 8, step=1, label='dot size')
+                                p_outline = gr.Slider(0, 10, 5, step=1, label='outline inflating')
+                                p_smooth = gr.Slider(0, 10, 0, step=1, label='Smoothing')
+                                pixel_btn = gr.Button("refresh", variant="primary")
                     
                     with gr.TabItem('Other'):
                         with gr.Tabs(elem_id='function list'):
@@ -177,6 +187,15 @@ def add_tab():
         for component in all_sk_set:
             component.change(sketch.run, all_sk_input, image_out)
         sketch_btn.click(sketch.run, all_sk_input, image_out)
+        
+        #pixelize
+        all_p_set = [
+            p_colors, p_dot_size, p_smooth, p_outline
+        ]
+        all_p_input = [image_eff] + all_p_set
+        for component in all_p_set:
+            component.change(pixel.run, all_p_input, image_out)
+        pixel_btn.click(pixel.run, all_p_input, image_out)
         
         #send
         for btns, btn3, img_src in all_btns:
