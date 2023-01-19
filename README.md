@@ -21,3 +21,7 @@ https://user-images.githubusercontent.com/59680068/212915298-92157d15-e7e0-40b0-
 
 ## sketch
 ![image](https://user-images.githubusercontent.com/59680068/212818424-446ec5f6-246f-4bdd-80cb-8b8ff171cca4.png)
+
+
+## pixelize
+![image](https://user-images.githubusercontent.com/59680068/213517417-1ee275e0-e265-40df-ad92-2e9d973f6a82.png)
