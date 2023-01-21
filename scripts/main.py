@@ -16,6 +16,7 @@ from hakuimg import(
     sketch,
     pixel
 )
+from inoutpaint import main as outpaint
 
 
 '''
@@ -132,17 +133,26 @@ def add_tab():
                                 pixel_btn = gr.Button("refresh", variant="primary")
                     
                     with gr.TabItem('Other'):
+                        img_other_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_oth')
+                        image_other = gr.Image(type='numpy', label="img", elem_id='haku_img_other', show_label=False)
                         with gr.Tabs(elem_id='function list'):
                             with gr.TabItem('InOutPaint'):
-                                iop_mask = gr.Image(type='pil', visible=False)
+                                iop_u = gr.Slider(0, 512, 0, step=64, label='fill up')
+                                iop_d = gr.Slider(0, 512, 0, step=64, label='fill down')
+                                iop_l = gr.Slider(0, 512, 0, step=64, label='fill left')
+                                iop_r = gr.Slider(0, 512, 0, step=64, label='fill right')
+                                iop_btn = gr.Button("refresh", variant="primary")
             
             with gr.Column():
+                img_out_h_slider = gr.Slider(160, 1280, 420, step=10, label="Image preview height", elem_id='haku_img_h_out')
+                res_info = gr.Textbox(label='Resolution')
                 image_out = gr.Image(
                     interactive=False, 
                     type='pil', 
                     label="haku_output", 
                     elem_id='haku_out'
                 )
+                image_mask = gr.Image(visible=False)
                 with gr.Row():
                     send_btns = gpc.create_buttons(["img2img", "inpaint", "extras"])
                     send_ip_b = gr.Button("Send to inpaint upload", elem_id='send_inpaint_base')
@@ -152,8 +162,12 @@ def add_tab():
                         for i in range(1, layers+1):
                             send_blends.append(gr.Button(f"Send to Layer{i}", elem_id=f'send_haku_blend{i}'))
                     send_eff = gr.Button("Send to Effect", elem_id='send_haku_blur')
+        
+        #preview height slider
         img_blend_h_slider.change(None, img_blend_h_slider, _js=f'get_change_height("haku_img_blend")')
         img_eff_h_slider.change(None, img_eff_h_slider, _js=f'get_change_height("haku_img_eff")')
+        img_other_h_slider.change(None, img_other_h_slider, _js=f'get_change_height("haku_img_other")')
+        img_out_h_slider.change(None, img_out_h_slider, _js=f'get_change_height("haku_out")')
         
         # blend
         all_blend_set = [bg_color]
@@ -197,6 +211,18 @@ def add_tab():
             component.change(pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
         
+        #iop
+        all_iop_set = [
+            iop_u, iop_d, iop_l, iop_r
+        ]
+        all_iop_input = [image_other] + all_iop_set
+        for component in all_iop_set:
+            component.change(outpaint.run, all_iop_input, [image_out, image_mask])
+        iop_btn.click(outpaint.run, all_iop_input, [image_out, image_mask])
+        
+        #
+        image_out.change(lambda x:f'{x.width} x {x.height}', image_out, res_info)
+        
         #send
         for btns, btn3, img_src in all_btns:
             for btn, img in zip(btns, all_layers):
@@ -212,7 +238,7 @@ def add_tab():
             send_btn.click(lambda x:x, image_out, layer)
             send_btn.click(None, _js='switch_to_haku_blend')
         
-        send_ip_b.click(lambda *x:x, [image_out, iop_mask], [inpaint_base, inpaint_mask])
+        send_ip_b.click(lambda *x:x, [image_out, image_mask], [inpaint_base, inpaint_mask])
         send_ip_b.click(None, _js = 'switch_to_inpaint_upload')
             
         send_eff.click(lambda x:x, image_out, image_eff)
