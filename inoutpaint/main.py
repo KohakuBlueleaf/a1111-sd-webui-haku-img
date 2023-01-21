@@ -29,9 +29,9 @@ def run(img, u, d, l, r, mode='fill'):
         new_img.paste(img.resize((w, d), box=(0, h, w, h)), box=(l, u+h))
     
     if l:
-        new_img.paste(new_img.resize((l, h_n), box=(l, 0, l, h_n)), box=(0, 0))
+        new_img.paste(new_img.resize((l, h_n), box=(l+1, 0, l+1, h_n)), box=(0, 0))
     if r:
-        new_img.paste(new_img.resize((r, h_n), box=(w+l, 0, w+l, h_n)), box=(l+w, 0))
+        new_img.paste(new_img.resize((r, h_n), box=(w+l-1, 0, w+l-1, h_n)), box=(l+w, 0))
     
     
     return new_img, mask, f'{w_n} x {h_n}'
@@ -39,7 +39,7 @@ def run(img, u, d, l, r, mode='fill'):
 
 if __name__ == '__main__':
     img = Image.open('./01491-2023-01-21_d7ff2a1d60_KBlueLeaf_KBlueLeaf_856221927-768x512.png')
-    new, mask = run(np.array(img), 64, 192, 64, 64)
+    new, mask, _ = run(np.array(img), 64, 192, 64, 64)
     
     w, h = new.size
     

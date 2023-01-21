@@ -222,6 +222,7 @@ def add_tab():
         
         #
         image_out.change(lambda x:f'{x.width} x {x.height}', image_out, res_info)
+        image_out.change(None, img_out_h_slider, _js=f'get_change_height("haku_out")')
         
         #send
         for btns, btn3, img_src in all_btns:
