@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from numpy.typing import NDArray
 
@@ -29,3 +31,11 @@ def dithering(
             if j < d_w - 1:
                 new_res[i+1, j+1] += err * 1/16
     return np.clip(new_res/np.max(new_res, axis=(0,1))*255, 0, 255)
+
+
+def run(
+    src,
+    k: int = 3,
+) -> tuple[Image.Image, list[list[str|float]]]:
+    def calc()
+    return Image.fromarray(result)

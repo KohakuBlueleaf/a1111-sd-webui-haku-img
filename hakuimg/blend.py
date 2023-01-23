@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from PIL import Image, ImageFilter, ImageColor
 import numpy as np
 
