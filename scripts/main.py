@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from modules import scripts
 from modules import script_callbacks, shared
 from modules import generation_parameters_copypaste as gpc
