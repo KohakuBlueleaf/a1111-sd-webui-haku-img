@@ -130,6 +130,7 @@ def add_tab():
                                 p_dot_size = gr.Slider(2, 32, 8, step=1, label='dot size')
                                 p_outline = gr.Slider(0, 10, 5, step=1, label='outline inflating')
                                 p_smooth = gr.Slider(0, 10, 0, step=1, label='Smoothing')
+                                p_mode = gr.Radio(['kmeans', 'dithering', 'kmeans with dithering'], value='kmeans', label='Color reduce algo')
                                 pixel_btn = gr.Button("refresh", variant="primary")
                     
                     with gr.TabItem('Other'):
@@ -204,7 +205,7 @@ def add_tab():
         
         #pixelize
         all_p_set = [
-            p_colors, p_dot_size, p_smooth, p_outline
+            p_colors, p_dot_size, p_smooth, p_outline, p_mode
         ]
         all_p_input = [image_eff] + all_p_set
         for component in all_p_set:

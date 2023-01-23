@@ -1,6 +1,8 @@
 from typing import Any
 from numpy.typing import NDArray
 
+from itertools import product
+
 import cv2
 from PIL import Image
 import numpy as np
@@ -79,12 +81,37 @@ def preprocess(
     return img
 
 
+def dithering(
+    img: NDArray[Any],
+    find_new_color
+):
+    d_h, d_w, c = img.shape
+    new_res = np.array(img, dtype=np.float32)/255
+    for i, j in product(range(d_h), range(d_w)):
+        old_val = new_res[i, j].copy()
+        new_val = find_new_color(old_val)
+        new_res[i, j] = new_val
+        err = old_val - new_val
+        
+        if j < d_w - 1:
+            new_res[i, j+1] += err * 7/16
+        if i < d_h - 1:
+            new_res[i+1, j] += err * 5/16
+            if j > 0:
+                new_res[i+1, j-1] += err * 3/16
+            if j < d_w - 1:
+                new_res[i+1, j+1] += err * 1/16
+    return np.clip(new_res/np.max(new_res, axis=(0,1))*255, 0, 255)
+
+
 def pixelize(
     img: NDArray[Any],
     k: int, c: int,
     d_w: int, d_h: int,
     o_w: int, o_h: int,
     precise: int,
+    mode: str = 'dithering',
+    dither_nc: int = 6
 ) -> tuple[NDArray[Any], NDArray[Any]]:
     '''
     Use down scale and up scale to make pixel image.
@@ -98,24 +125,42 @@ def pixelize(
     
     # reshape to 1-dim array(for every color) for k-means
     # use k-means to abstract the colors to use
-    img_cp = img.reshape(-1, c)
-    criteria = (
-        cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 
-        precise*5, 0.01
-    )
-    _, label, center = cv2.kmeans(
-        img_cp, k, None,
-        criteria, 1, cv2.KMEANS_PP_CENTERS
-    )
-    result = center[label.flatten()]
-    result = result.reshape((img.shape))
+    if 'kmeans' in mode:
+        criteria = (
+            cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 
+            precise*5, 0.01
+        )
+        # img_lab = cv2.cvtColor(img/255, cv2.COLOR_RGB2LAB)
+        # img_cp = img_lab.reshape(-1, c)
+        img_cp = img.reshape(-1, c)
+        _, label, center = cv2.kmeans(
+            img_cp, k, None,
+            criteria, 1, cv2.KMEANS_PP_CENTERS
+        )
+        if 'dithering' in mode:
+            # center = np.expand_dims(center, axis=0)
+            # center = cv2.cvtColor(center, cv2.COLOR_LAB2RGB).reshape(-1, 3)
+            center /= 255
+            def find_center(px):
+                distance = np.sum((center-px)**2, axis=1)
+                return center[np.argmin(distance)]
+            result = dithering(img, find_center)
+        else:
+            result = center[label.flatten()].reshape(*img.shape)
+            # result = cv2.cvtColor(result, cv2.COLOR_LAB2RGB)*255
+    elif mode == 'dithering':
+        result = dithering(
+            img, lambda px: np.round(px*(k-1))/(k-1)
+        )
+    else:
+        raise NotImplementedError('Unknown Method')
     
     result = cv2.resize(
         result, 
         (o_w, o_h), 
         interpolation=cv2.INTER_NEAREST
     )
-    return result.astype(np.uint8), center.astype(np.uint8)
+    return result.astype(np.uint8)
 
 
 def run(
@@ -124,6 +169,7 @@ def run(
     scale: int = 2,
     blur: int = 0, 
     erode: int = 0,
+    mode: str = 'kmeans',
     precise: int = 10,
 ) -> tuple[Image.Image, list[list[str|float]]]:
     #print('Start process.')
@@ -150,11 +196,12 @@ def run(
     
     #print('Pixelize... ', end='', flush=True)
     # pixelize(using k-means)
-    result, colors = pixelize(
+    result = pixelize(
         img, k, c,
         d_w, d_h,
         o_w, o_h,
-        precise
+        precise,
+        mode
     )
     #print('done!')
     
