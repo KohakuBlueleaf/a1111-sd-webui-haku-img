@@ -9,6 +9,8 @@ import cv2
 from PIL import Image
 import numpy as np
 
+from hakuimg.dither import dithering
+
 
 INFLATE_FILTER = [
     None,

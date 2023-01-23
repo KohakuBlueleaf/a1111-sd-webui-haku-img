@@ -37,5 +37,6 @@ def run(
     src,
     k: int = 3,
 ) -> tuple[Image.Image, list[list[str|float]]]:
-    def calc()
+    def calc():
+        pass
     return Image.fromarray(result)
