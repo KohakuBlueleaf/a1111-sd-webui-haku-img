@@ -149,7 +149,7 @@ def run(
     erode: int = 0,
     mode: str = 'kmeans',
     precise: int = 10,
-    resize: bool = False
+    resize: bool = True
 ) -> tuple[Image.Image, list[list[str|float]]]:
     #print('Start process.')
     #print('Read raw image... ', end='', flush=True)
