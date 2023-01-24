@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 from modules import scripts
-from modules import script_callbacks, shared
+from modules import script_callbacks
 from modules import generation_parameters_copypaste as gpc
 from modules.ui_components import FormRow
 
 import gradio as gr
-
-from PIL import Image, ImageFilter, ImageEnhance, ImageColor
-import cv2
-import numpy as np
 
 from hakuimg import(
     blend,
@@ -118,6 +114,7 @@ def add_tab():
                                 blur_btn = gr.Button("refresh", variant="primary")
                             
                             with gr.TabItem('Sketch', elem_id='haku_sketch'):
+                                sk_kernel = gr.Slider(0, 25, 0, step=1, label='kernel size')
                                 sk_sigma = gr.Slider(1, 5, 1.4, step=0.05, label='sigma')
                                 sk_k_sigma = gr.Slider(1, 5, 1.6, step=0.05, label='k_sigma')
                                 sk_eps = gr.Slider(-0.2, 0.2, -0.03, step=0.005, label='epsilon')
@@ -198,7 +195,7 @@ def add_tab():
         
         #sketch
         all_sk_set = [
-            sk_sigma, sk_k_sigma, sk_eps, sk_phi, sk_gamma, sk_color, sk_scale
+            sk_kernel, sk_sigma, sk_k_sigma, sk_eps, sk_phi, sk_gamma, sk_color, sk_scale
         ]
         all_sk_input = [image_eff] + all_sk_set
         for component in all_sk_set:

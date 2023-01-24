@@ -5,7 +5,6 @@ from numpy.typing import NDArray
 
 from itertools import product
 
-import cv2
 from PIL import Image
 import numpy as np
 
