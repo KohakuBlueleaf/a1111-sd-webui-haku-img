@@ -77,6 +77,7 @@ def add_tab():
                         all_alphas = []
                         all_mask_str = []
                         all_mask_blur = []
+                        all_mode = []
                         img_blend_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_blend')
                         with gr.Tabs(elem_id="haku_blend_layers_tabs"):
                             for i in range(1, layers+1):
@@ -85,13 +86,16 @@ def add_tab():
                                         gr.ImageMask(type='numpy', label=f"Layer{i}", elem_id=f'haku_img_blend{i}')
                                     )
                                     all_alphas.append(
-                                        gr.Slider(0, 1, 0.5, label=f"Layer{i} transparent")
+                                        gr.Slider(0, 1, 0.5 if i-1 else 1, label=f"Layer{i} opacity")
                                     )
                                     all_mask_blur.append(
                                         gr.Slider(0, 32, 4, label=f"Layer{i} mask blur")
                                     )
                                     all_mask_str.append(
                                         gr.Slider(0, 1, 1, label=f"Layer{i} mask strength")
+                                    )
+                                    all_mode.append(
+                                        gr.Dropdown(blend.blend_methods, value='normal', label='Blend mode')
                                     )
                         bg_color = gr.ColorPicker('#FFFFFF', label='background color')
                         expand_btn = gr.Button("refresh", variant="primary")
@@ -110,7 +114,7 @@ def add_tab():
                                 color_btn = gr.Button("refresh", variant="primary")
                             
                             with gr.TabItem('Blur', elem_id='haku_blur'):
-                                blur_slider = gr.Slider(0, 32, 8, label="blur")
+                                blur_slider = gr.Slider(0, 128, 8, label="blur")
                                 blur_btn = gr.Button("refresh", variant="primary")
                             
                             with gr.TabItem('Sketch', elem_id='haku_sketch'):
@@ -171,7 +175,7 @@ def add_tab():
         
         # blend
         all_blend_set = [bg_color]
-        all_blend_set += all_alphas+all_mask_blur+all_mask_str
+        all_blend_set += all_alphas+all_mask_blur+all_mask_str+all_mode
         all_blend_input = all_blend_set + all_layers
         for component in all_blend_set:
             component.change(blend.run(layers), all_blend_input, image_out)
