@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from modules import shared
 from modules import scripts
 from modules import script_callbacks
 from modules import generation_parameters_copypaste as gpc
@@ -24,7 +25,7 @@ UI part
 inpaint_base: gr.Image
 inpaint_mask: gr.Image
 all_btns: list[tuple[gr.Button, ...]] = []
-layers = 5
+layers = int(shared.opts.data.get('hakuimg_layer_num', 5))
 
 
 class Script(scripts.Script):
@@ -252,4 +253,17 @@ def add_tab():
     return (demo , "HakuImg", "haku_img"),
 
 
+def on_ui_settings():
+    section = ('haku-img', "HakuImg")
+    shared.opts.add_option(
+        "hakuimg_layer_num", 
+        shared.OptionInfo(
+            5, 
+            "Total num of layers (reload required)", 
+            section=section
+        )
+    )
+
+
 script_callbacks.on_ui_tabs(add_tab)
+script_callbacks.on_ui_settings(on_ui_settings)
