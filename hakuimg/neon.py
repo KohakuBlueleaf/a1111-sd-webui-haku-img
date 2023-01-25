@@ -21,7 +21,7 @@ def run(img, blur, strength, mode='BS'):
         img_blur = cv2.GaussianBlur(img, (0, 0), blur)
         img_mul = np.clip(Blend.multiply(img_blur, img), 0, 1)
         img_mul_blur = cv2.GaussianBlur(img_mul, (0, 0), blur)
-        img_glow = np.clip(Blend.lighten(img, img_mul_blur, strength), 0, 1)
+        img_glow = np.clip(Blend.lighten(img_mul_blur, img, strength), 0, 1)
     else:
         raise NotImplementedError
     
