@@ -5,82 +5,107 @@ import numpy as np
 import cv2
 
 
+def basic(target, blend, opacity):
+    return target * opacity + blend * (1-opacity)
+
+def blender(func):
+    def blend(target, blend, opacity=1, *args):
+        res = func(target, blend, *args)
+        res = basic(res, blend, opacity)
+        return np.clip(res, 0, 1)
+    return blend
+
+
 class Blend:
     @classmethod
     def method(cls, name):
         return getattr(cls, name)
     
-    @staticmethod
-    def normal(target, blend, opacity, *args):
-        return target * opacity + blend * (1-opacity)
+    normal = basic
     
     @staticmethod
+    @blender
     def darken(target, blend, *args):
         return np.minimum(target, blend)
     
     @staticmethod
+    @blender
     def multiply(target, blend, *args):
         return target * blend
     
     @staticmethod
+    @blender
     def color_burn(target, blend, *args):
         return 1 - (1-target)/blend
     
     @staticmethod
+    @blender
     def linear_burn(target, blend, *args):
         return target+blend-1
     
     @staticmethod
+    @blender
     def lighten(target, blend, *args):
         return np.maximum(target, blend)
     
     @staticmethod
+    @blender
     def screen(target, blend, *args):
         return 1 - (1-target) * (1-blend)
     
     @staticmethod
+    @blender
     def color_dodge(target, blend, *args):
         return target/(1-blend)
     
     @staticmethod
+    @blender
     def linear_dodge(target, blend, *args):
         return target+blend
     
     @staticmethod
+    @blender
     def overlay(target, blend, *args):
         return  (target>0.5) * (1-(2-2*target)*(1-blend)) +\
                 (target<=0.5) * (2*target*blend)
     
     @staticmethod
+    @blender
     def soft_light(target, blend, *args):
         return  (blend>0.5) * (1 - (1-target)*(1-(blend-0.5))) +\
                 (blend<=0.5) * (target*(blend+0.5))
     
     @staticmethod
+    @blender
     def hard_light(target, blend, *args):
         return  (blend>0.5) * (1 - (1-target)*(2-2*blend)) +\
                 (blend<=0.5) * (2*target*blend)
     
     @staticmethod
+    @blender
     def vivid_light(target, blend, *args):
         return  (blend>0.5) * (1 - (1-target)/(2*blend-1)) +\
                 (blend<=0.5) * (target/(1-2*blend))
     
     @staticmethod
+    @blender
     def linear_light(target, blend, *args):
         return  (blend>0.5) * (target + 2*(blend-0.5)) +\
                 (blend<=0.5) * (target + 2*blend)
     
     @staticmethod
+    @blender
     def pin_light(target, blend, *args):
         return  (blend>0.5) * np.maximum(target,2*(blend-0.5)) +\
                 (blend<=0.5) * np.minimum(target,2*blend)
     
     @staticmethod
+    @blender
     def difference(target, blend, *args):
         return np.abs(target - blend)
     
     @staticmethod
+    @blender
     def exclusion(target, blend, *args):
         return 0.5 - 2*(target-0.5)*(blend-0.5)
 
@@ -95,7 +120,7 @@ def run(layers):
         base_img = np.array(Image.new(mode="RGB", size=(w, h), color=ImageColor.getcolor(bg, 'RGB')))
         base_img = base_img.astype(np.float64)/255
         
-        for alpha, mask_blur, mask_str, mode, img in reversed(zip(*chunks)):
+        for alpha, mask_blur, mask_str, mode, img in reversed(list(zip(*chunks))):
             if img is None or img['image'] is None: continue
             img_now = Image.fromarray(img['image']).resize((w, h))
             mask = Image.fromarray(img['mask'][:,:,0], mode='L')
