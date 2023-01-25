@@ -13,7 +13,8 @@ from hakuimg import(
     blur,
     color,
     sketch,
-    pixel
+    pixel,
+    neon
 )
 from inoutpaint import main as outpaint
 
@@ -53,8 +54,8 @@ class Script(scripts.Script):
                 with gr.Column():
                     with gr.Accordion('Send to Blend', open=False):
                         btns = []
-                        for i in range(layers):
-                            btn1 = gr.Button(f"Send to Layer{i+1}")
+                        for i in range(layers, 0, -1):
+                            btn1 = gr.Button(f"Send to Layer{i}")
                             btn1.click(None, _js=f"switch_to_haku_img")
                             btns.append(btn1)
                 with gr.Column():
@@ -87,7 +88,7 @@ def add_tab():
                                         gr.ImageMask(type='numpy', label=f"Layer{i}", elem_id=f'haku_img_blend{i}')
                                     )
                                     all_alphas.append(
-                                        gr.Slider(0, 1, 0.5 if i-1 else 1, label=f"Layer{i} opacity")
+                                        gr.Slider(0, 1, 1, label=f"Layer{i} opacity")
                                     )
                                     all_mask_blur.append(
                                         gr.Slider(0, 32, 4, label=f"Layer{i} mask blur")
@@ -136,6 +137,12 @@ def add_tab():
                                 p_smooth = gr.Slider(0, 10, 0, step=1, label='Smoothing')
                                 p_mode = gr.Radio(['kmeans', 'dithering', 'kmeans with dithering'], value='kmeans', label='Color reduce algo')
                                 pixel_btn = gr.Button("refresh", variant="primary")
+                            
+                            with gr.TabItem('Glow', elem_id='haku_Pixelize'):
+                                neon_mode = gr.Radio(['BS', 'BMBL'], value='BS', label='Glow mode')
+                                neon_blur = gr.Slider(2, 128, 16, step=1, label='range')
+                                neon_str = gr.Slider(0, 1, 1, step=0.05, label='strength')
+                                neon_btn = gr.Button("refresh", variant="primary")
                     
                     with gr.TabItem('Other'):
                         img_other_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_oth')
@@ -164,7 +171,7 @@ def add_tab():
                 with gr.Row():
                     with gr.Accordion('Send to Blend', open=False):
                         send_blends = []
-                        for i in range(1, layers+1):
+                        for i in range(layers, 0, -1):
                             send_blends.append(gr.Button(f"Send to Layer{i}", elem_id=f'send_haku_blend{i}'))
                     send_eff = gr.Button("Send to Effect", elem_id='send_haku_blur')
         
@@ -215,6 +222,15 @@ def add_tab():
         for component in all_p_set:
             component.change(pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
+        
+        #neon
+        all_neon_set = [
+            neon_blur, neon_str, neon_mode,
+        ]
+        all_neon_input = [image_eff] + all_neon_set
+        for component in all_neon_set:
+            component.change(neon.run, all_neon_input, image_out)
+        neon_btn.click(neon.run, all_neon_input, image_out)
         
         #iop
         all_iop_set = [
