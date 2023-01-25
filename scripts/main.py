@@ -81,7 +81,7 @@ def add_tab():
                         all_mode = []
                         img_blend_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_blend')
                         with gr.Tabs(elem_id="haku_blend_layers_tabs"):
-                            for i in range(1, layers+1):
+                            for i in range(layers, 0, -1):
                                 with gr.TabItem(f'Layer{i}', elem_id=f'haku_blend_Layer{i}'):
                                     all_layers.append(
                                         gr.ImageMask(type='numpy', label=f"Layer{i}", elem_id=f'haku_img_blend{i}')

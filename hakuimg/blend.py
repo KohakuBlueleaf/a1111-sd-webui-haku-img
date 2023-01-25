@@ -95,7 +95,7 @@ def run(layers):
         base_img = np.array(Image.new(mode="RGB", size=(w, h), color=ImageColor.getcolor(bg, 'RGB')))
         base_img = base_img.astype(np.float64)/255
         
-        for alpha, mask_blur, mask_str, mode, img in zip(*chunks):
+        for alpha, mask_blur, mask_str, mode, img in reversed(zip(*chunks)):
             if img is None or img['image'] is None: continue
             img_now = Image.fromarray(img['image']).resize((w, h))
             mask = Image.fromarray(img['mask'][:,:,0], mode='L')
