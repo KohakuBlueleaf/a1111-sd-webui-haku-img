@@ -131,7 +131,6 @@ def run(layers):
             
             img_now = Blend.normal(base_img, img_now, mask)
             base_img = Blend.method(mode)(img_now, base_img, alpha)
-            base_img = np.clip(base_img, 0, 1)
         base_img *= 255
         
         return Image.fromarray(base_img.astype(np.uint8), mode='RGB')

@@ -28,6 +28,7 @@ def run(img1, bright, contrast, sat, temp, hue, gamma):
     elif temp<0:
         res[:, :, 2] *= 1-temp
     res = np.clip(res, 0, 255)/255
+    
     res = np.clip(np.power(res, gamma), 0, 1)
     
     #saturation

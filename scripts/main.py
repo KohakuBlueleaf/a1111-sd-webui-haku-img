@@ -14,7 +14,8 @@ from hakuimg import(
     color,
     sketch,
     pixel,
-    neon
+    neon,
+    curve
 )
 from inoutpaint import main as outpaint
 
@@ -27,6 +28,7 @@ inpaint_base: gr.Image
 inpaint_mask: gr.Image
 all_btns: list[tuple[gr.Button, ...]] = []
 layers = int(shared.opts.data.get('hakuimg_layer_num', 5))
+points = int(shared.opts.data.get('hakuimg_curve_points', 3))
 
 
 class Script(scripts.Script):
@@ -107,13 +109,37 @@ def add_tab():
                         image_eff = gr.Image(type='numpy', label="img", elem_id='haku_img_eff', show_label=False)
                         with gr.Tabs(elem_id='effect_tabs'):
                             with gr.TabItem('Color', elem_id='haku_color'):
-                                temp_slider = gr.Slider(-100, 100, 0, step=1, label="temparature")
-                                hue_slider = gr.Slider(-90, 90, 0, step=1, label="hue")
-                                bright_slider = gr.Slider(-100, 100, 0, step=1, label="brightness")
-                                contrast_slider = gr.Slider(-100, 100, 0, step=1, label="contrast")
-                                sat_slider = gr.Slider(-100, 100, 0, step=1, label="saturation")
-                                gamma_slider = gr.Slider(0.2, 2.2, 1, step=0.1, label="Gamma")
+                                with gr.Row():
+                                    temp_slider = gr.Slider(-100, 100, 0, step=1, label="temparature")
+                                    hue_slider = gr.Slider(-90, 90, 0, step=1, label="hue")
+                                with gr.Row():
+                                    bright_slider = gr.Slider(-100, 100, 0, step=1, label="brightness")
+                                    contrast_slider = gr.Slider(-100, 100, 0, step=1, label="contrast")
+                                with gr.Row():
+                                    sat_slider = gr.Slider(-100, 100, 0, step=1, label="saturation")
+                                    gamma_slider = gr.Slider(0.2, 2.2, 1, step=0.1, label="Gamma")
                                 color_btn = gr.Button("refresh", variant="primary")
+                            
+                            with gr.TabItem('Tone Curve', elem_id='haku_curve'):
+                                all_points = [[], [], [], []]
+                                all_curves = []
+                                with gr.Tabs(elem_id='curve'):
+                                    for index, tab in enumerate(['All', 'R', 'G', 'B']):
+                                        with gr.TabItem(tab):
+                                            for i in range(1, points+1):
+                                                with gr.Row():
+                                                    all_points[index] += [
+                                                        gr.Slider(
+                                                            0, 255, int(255*i/(points+1)), 
+                                                            step=1, label=f'point{i} x'
+                                                        ),
+                                                        gr.Slider(
+                                                            0, 255, int(255*i/(points+1)), 
+                                                            step=1, label=f'point{i} y'
+                                                        )
+                                                    ]
+                                            all_curves.append(gr.Image())
+                                curve_btn = gr.Button("refresh", variant="primary")
                             
                             with gr.TabItem('Blur', elem_id='haku_blur'):
                                 blur_slider = gr.Slider(0, 128, 8, label="blur")
@@ -138,7 +164,7 @@ def add_tab():
                                 p_mode = gr.Radio(['kmeans', 'dithering', 'kmeans with dithering'], value='kmeans', label='Color reduce algo')
                                 pixel_btn = gr.Button("refresh", variant="primary")
                             
-                            with gr.TabItem('Glow', elem_id='haku_Pixelize'):
+                            with gr.TabItem('Glow', elem_id='haku_Glow'):
                                 neon_mode = gr.Radio(['BS', 'BMBL'], value='BS', label='Glow mode')
                                 neon_blur = gr.Slider(2, 128, 16, step=1, label='range')
                                 neon_str = gr.Slider(0, 1, 1, step=0.05, label='strength')
@@ -180,6 +206,8 @@ def add_tab():
         img_eff_h_slider.change(None, img_eff_h_slider, _js=f'get_change_height("haku_img_eff")')
         img_other_h_slider.change(None, img_other_h_slider, _js=f'get_change_height("haku_img_other")')
         img_out_h_slider.change(None, img_out_h_slider, _js=f'get_change_height("haku_out")')
+        image_out.change(lambda x:f'{x.width} x {x.height}', image_out, res_info)
+        image_out.change(None, img_out_h_slider, _js=f'get_change_height("haku_out")')
         
         # blend
         all_blend_set = [bg_color]
@@ -204,6 +232,15 @@ def add_tab():
         for component in all_color_set:
             component.change(color.run, all_color_input, image_out)
         color_btn.click(color.run, all_color_input, image_out)
+        
+        #curve
+        all_curve_set = sum(all_points, start=[])
+        all_curve_input = [image_eff] + all_curve_set
+        for index, components in enumerate(all_points):
+            for component in components:
+                component.change(curve.curve_img, components, all_curves[index])
+            curve_btn.click(curve.curve_img, components, all_curves[index])
+        curve_btn.click(curve.run(points), all_curve_input, image_out)
         
         #sketch
         all_sk_set = [
@@ -241,10 +278,6 @@ def add_tab():
             component.change(outpaint.run, all_iop_input, [image_out, image_mask])
         iop_btn.click(outpaint.run, all_iop_input, [image_out, image_mask])
         
-        #
-        image_out.change(lambda x:f'{x.width} x {x.height}', image_out, res_info)
-        image_out.change(None, img_out_h_slider, _js=f'get_change_height("haku_out")')
-        
         #send
         for btns, btn3, img_src in all_btns:
             for btn, img in zip(btns, all_layers):
@@ -262,7 +295,7 @@ def add_tab():
         
         send_ip_b.click(lambda *x:x, [image_out, image_mask], [inpaint_base, inpaint_mask])
         send_ip_b.click(None, _js = 'switch_to_inpaint_upload')
-            
+        
         send_eff.click(lambda x:x, image_out, image_eff)
         send_eff.click(None, _js = 'switch_to_haku_eff')
         
@@ -276,6 +309,14 @@ def on_ui_settings():
         shared.OptionInfo(
             5, 
             "Total num of layers (reload required)", 
+            section=section
+        )
+    )
+    shared.opts.add_option(
+        "hakuimg_curve_points", 
+        shared.OptionInfo(
+            3, 
+            "Total num of point for curve (reload required)", 
             section=section
         )
     )

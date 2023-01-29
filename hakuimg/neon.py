@@ -16,12 +16,12 @@ def run(img, blur, strength, mode='BS'):
     
     if mode == 'BS':
         img_blur = cv2.GaussianBlur(img, (0, 0), blur)
-        img_glow = np.clip(Blend.screen(img_blur, img, strength), 0, 1)
+        img_glow = Blend.screen(img_blur, img, strength)
     elif mode == 'BMBL':
         img_blur = cv2.GaussianBlur(img, (0, 0), blur)
-        img_mul = np.clip(Blend.multiply(img_blur, img), 0, 1)
+        img_mul = Blend.multiply(img_blur, img)
         img_mul_blur = cv2.GaussianBlur(img_mul, (0, 0), blur)
-        img_glow = np.clip(Blend.lighten(img_mul_blur, img, strength), 0, 1)
+        img_glow = Blend.lighten(img_mul_blur, img, strength)
     else:
         raise NotImplementedError
     
