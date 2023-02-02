@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any, Tuple, List, Union
 
 from modules import shared
 from modules import scripts
@@ -26,7 +27,7 @@ UI part
 
 inpaint_base: gr.Image
 inpaint_mask: gr.Image
-all_btns: list[tuple[gr.Button, ...]] = []
+all_btns: List[Tuple[gr.Button, ...]] = []
 layers = int(shared.opts.data.get('hakuimg_layer_num', 5))
 points = int(shared.opts.data.get('hakuimg_curve_points', 3))
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from PIL import Image, ImageEnhance
 import cv2
 import numpy as np

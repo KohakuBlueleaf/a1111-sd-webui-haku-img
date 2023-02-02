@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Tuple, List, Union
 from numpy.typing import NDArray
 
 import cv2
@@ -62,7 +62,7 @@ def run(
 ):
     def curve(
         img: NDArray,
-        *args: list[int]
+        *args: List[int]
     ):
         nonlocal points
         #all, r, g, b

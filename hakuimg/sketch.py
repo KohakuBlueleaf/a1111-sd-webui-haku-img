@@ -1,9 +1,6 @@
-from __future__ import annotations
-
 from PIL import Image
 import cv2
 import numpy as np
-
 
 
 def fix_float(val, eps=1e-3):

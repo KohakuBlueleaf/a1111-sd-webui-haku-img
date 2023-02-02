@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Tuple, List, Union
 from numpy.typing import NDArray
 
 from itertools import product
@@ -35,7 +35,7 @@ def dithering(
 def run(
     src,
     k: int = 3,
-) -> tuple[Image.Image, list[list[str|float]]]:
+):
     def calc():
         pass
     return Image.fromarray(result)

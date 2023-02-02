@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Tuple, List, Union
 from numpy.typing import NDArray
 
 import cv2
@@ -92,7 +92,7 @@ def pixelize(
     precise: int,
     mode: str = 'dithering',
     resize: bool = True
-) -> tuple[NDArray[Any], NDArray[Any]]:
+) -> Tuple[NDArray[Any], NDArray[Any]]:
     '''
     Use down scale and up scale to make pixel image.
     
@@ -150,7 +150,7 @@ def run(
     mode: str = 'kmeans',
     precise: int = 10,
     resize: bool = True
-) -> tuple[Image.Image, list[list[str|float]]]:
+) -> Tuple[Image.Image, List[List[Union[str, float]]]]:
     #print('Start process.')
     #print('Read raw image... ', end='', flush=True)
     img = read_img_as_array(src)
