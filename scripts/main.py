@@ -119,10 +119,13 @@ def add_tab():
                                 with gr.Row():
                                     sat_slider = gr.Slider(-100, 100, 0, step=1, label="saturation")
                                     gamma_slider = gr.Slider(0.2, 2.2, 1, step=0.1, label="Gamma")
-                                color_btn = gr.Button("refresh", variant="primary")
+                                with gr.Row():
+                                    color_btn = gr.Button("refresh", variant="primary")
+                                    color_rst_btn = gr.Button("reset")
                             
                             with gr.TabItem('Tone Curve', elem_id='haku_curve'):
                                 all_points = [[], [], [], []]
+                                all_curve_defaults = [[], [], [], []]
                                 all_curves = []
                                 with gr.Tabs(elem_id='curve'):
                                     for index, tab in enumerate(['All', 'R', 'G', 'B']):
@@ -139,8 +142,11 @@ def add_tab():
                                                             step=1, label=f'point{i} y'
                                                         )
                                                     ]
+                                                    all_curve_defaults[index] += [int(255*i/(points+1))]*2
                                             all_curves.append(gr.Image())
-                                curve_btn = gr.Button("refresh", variant="primary")
+                                with gr.Row():
+                                    curve_btn = gr.Button("refresh", variant="primary")
+                                    curve_rst_btn = gr.Button("reset")
                             
                             with gr.TabItem('Blur', elem_id='haku_blur'):
                                 blur_slider = gr.Slider(0, 128, 8, label="blur")
@@ -148,28 +154,41 @@ def add_tab():
                             
                             with gr.TabItem('Sketch', elem_id='haku_sketch'):
                                 sk_kernel = gr.Slider(0, 25, 0, step=1, label='kernel size')
-                                sk_sigma = gr.Slider(1, 5, 1.4, step=0.05, label='sigma')
-                                sk_k_sigma = gr.Slider(1, 5, 1.6, step=0.05, label='k_sigma')
-                                sk_eps = gr.Slider(-0.2, 0.2, -0.03, step=0.005, label='epsilon')
-                                sk_phi = gr.Slider(1, 50, 10, step=1, label='phi')
-                                sk_gamma = gr.Slider(0.75, 1, 1, step=0.005, label='gamma')
+                                with gr.Row():
+                                    sk_sigma = gr.Slider(1, 5, 1.4, step=0.05, label='sigma')
+                                    sk_k_sigma = gr.Slider(1, 5, 1.6, step=0.05, label='k_sigma')
+                                
+                                with gr.Row():
+                                    sk_eps = gr.Slider(-0.2, 0.2, -0.03, step=0.005, label='epsilon')
+                                    sk_phi = gr.Slider(1, 50, 10, step=1, label='phi')
+                                    sk_gamma = gr.Slider(0.75, 1, 1, step=0.005, label='gamma')
+                                
                                 sk_color = gr.Radio(['gray', 'rgb'], value='gray', label='color mode')
                                 sk_scale = gr.Checkbox(False, label='use scale')
-                                sketch_btn = gr.Button("refresh", variant="primary")
+                                with gr.Row():
+                                    sketch_btn = gr.Button("refresh", variant="primary")
+                                    sketch_rst_btn = gr.Button("reset")
                             
                             with gr.TabItem('Pixelize', elem_id='haku_Pixelize'):
                                 p_colors = gr.Slider(2, 128, 16, step=1, label='colors')
                                 p_dot_size = gr.Slider(2, 32, 8, step=1, label='dot size')
                                 p_outline = gr.Slider(0, 10, 5, step=1, label='outline inflating')
                                 p_smooth = gr.Slider(0, 10, 0, step=1, label='Smoothing')
-                                p_mode = gr.Radio(['kmeans', 'dithering', 'kmeans with dithering'], value='kmeans', label='Color reduce algo')
-                                pixel_btn = gr.Button("refresh", variant="primary")
+                                p_mode = gr.Radio(
+                                    ['kmeans', 'dithering', 'kmeans with dithering'], 
+                                    value='kmeans', label='Color reduce algo'
+                                )
+                                with gr.Row():
+                                    pixel_btn = gr.Button("refresh", variant="primary")
+                                    pixel_rst_btn = gr.Button("reset")
                             
                             with gr.TabItem('Glow', elem_id='haku_Glow'):
                                 neon_mode = gr.Radio(['BS', 'BMBL'], value='BS', label='Glow mode')
                                 neon_blur = gr.Slider(2, 128, 16, step=1, label='range')
                                 neon_str = gr.Slider(0, 1, 1, step=0.05, label='strength')
-                                neon_btn = gr.Button("refresh", variant="primary")
+                                with gr.Row():
+                                    neon_btn = gr.Button("refresh", variant="primary")
+                                    neon_rst_btn = gr.Button("reset")
                     
                     with gr.TabItem('Other'):
                         img_other_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_oth')
@@ -233,15 +252,18 @@ def add_tab():
         for component in all_color_set:
             component.change(color.run, all_color_input, image_out)
         color_btn.click(color.run, all_color_input, image_out)
+        color_rst_btn.click(lambda:[0, 0, 0, 0, 0, 1.0], None, all_color_set)
         
         #curve
         all_curve_set = sum(all_points, start=[])
+        all_curve_defaults = sum(all_curve_defaults, [])
         all_curve_input = [image_eff] + all_curve_set
         for index, components in enumerate(all_points):
             for component in components:
                 component.change(curve.curve_img, components, all_curves[index])
             curve_btn.click(curve.curve_img, components, all_curves[index])
         curve_btn.click(curve.run(points), all_curve_input, image_out)
+        curve_rst_btn.click(lambda: all_curve_defaults, None, all_curve_set)
         
         #sketch
         all_sk_set = [
@@ -251,6 +273,7 @@ def add_tab():
         for component in all_sk_set:
             component.change(sketch.run, all_sk_input, image_out)
         sketch_btn.click(sketch.run, all_sk_input, image_out)
+        sketch_rst_btn.click(lambda: [0, 1.4, 1.6, -0.03, 10, 1, 'gray', False], None, all_sk_set)
         
         #pixelize
         all_p_set = [
@@ -260,6 +283,7 @@ def add_tab():
         for component in all_p_set:
             component.change(pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
+        pixel_rst_btn.click(lambda: [16, 8, 0, 5, 'kmeans'], None, all_p_set)
         
         #neon
         all_neon_set = [
@@ -269,6 +293,7 @@ def add_tab():
         for component in all_neon_set:
             component.change(neon.run, all_neon_input, image_out)
         neon_btn.click(neon.run, all_neon_input, image_out)
+        neon_rst_btn.click(lambda: [16, 1, 'BS'], None, all_neon_set)
         
         #iop
         all_iop_set = [
