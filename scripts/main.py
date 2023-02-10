@@ -170,10 +170,10 @@ def add_tab():
                                     sketch_rst_btn = gr.Button("reset")
                             
                             with gr.TabItem('Pixelize', elem_id='haku_Pixelize'):
-                                p_colors = gr.Slider(2, 128, 16, step=1, label='colors')
-                                p_dot_size = gr.Slider(2, 32, 8, step=1, label='dot size')
-                                p_outline = gr.Slider(0, 10, 5, step=1, label='outline inflating')
-                                p_smooth = gr.Slider(0, 10, 0, step=1, label='Smoothing')
+                                p_colors = gr.Slider(2, 256, 128, step=1, label='colors')
+                                p_dot_size = gr.Slider(1, 32, 6, step=1, label='dot size')
+                                p_outline = gr.Slider(0, 10, 1, step=1, label='outline inflating')
+                                p_smooth = gr.Slider(0, 10, 4, step=1, label='Smoothing')
                                 p_mode = gr.Radio(
                                     ['kmeans', 'dithering', 'kmeans with dithering'], 
                                     value='kmeans', label='Color reduce algo'
