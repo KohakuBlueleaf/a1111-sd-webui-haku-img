@@ -52,7 +52,7 @@ class Script(scripts.Script):
         if id=='img_inpaint_mask':
             inpaint_mask = component
         
-        if val == "Send to extras":
+        if id=='extras_tab':
             with gr.Accordion('HakuImg', open=False):
                 with gr.Column():
                     with gr.Accordion('Send to Blend', open=False):
