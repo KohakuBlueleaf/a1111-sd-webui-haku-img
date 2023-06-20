@@ -16,7 +16,8 @@ from hakuimg import(
     sketch,
     pixel,
     neon,
-    curve
+    curve,
+    chromatic
 )
 from inoutpaint import main as outpaint
 
@@ -198,6 +199,11 @@ def add_tab():
                                     neon_btn = gr.Button("refresh", variant="primary")
                                     neon_rst_btn = gr.Button("reset")
 
+                            with gr.TabItem('Chromatic', elem_id='haku_Chromatic'):
+                                chromatic_slider = gr.Slider(0, 1, 0, label="chromatic")
+                                chromatic_blur_checkbox = gr.Checkbox(label="Blur", value=False)
+                                chromatic_btn = gr.Button("refresh", variant="primary")
+
                     with gr.TabItem('Other'):
                         img_other_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_oth')
                         image_other = gr.Image(type='numpy', label="img", elem_id='haku_img_other', show_label=False)
@@ -249,6 +255,12 @@ def add_tab():
         all_blur_input = [image_eff, blur_slider]
         blur_slider.change(blur.run, all_blur_input, outputs=image_out)
         blur_btn.click(blur.run, all_blur_input, outputs=image_out)
+
+        #chromatic
+        all_chromatic_input = [image_eff, chromatic_slider, chromatic_blur_checkbox]
+        chromatic_slider.change(chromatic.run, all_chromatic_input, outputs=image_out)
+        chromatic_blur_checkbox.change(chromatic.run, all_chromatic_input, outputs=image_out)
+        chromatic_btn.click(chromatic.run, all_chromatic_input, outputs=image_out)
 
         #color
         all_color_set = [
