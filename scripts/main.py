@@ -201,7 +201,7 @@ def add_tab():
                                     neon_rst_btn = gr.Button("reset")
 
                             with gr.TabItem('Chromatic', elem_id='haku_Chromatic'):
-                                chromatic_slider = gr.Slider(0, 1, 0, label="chromatic")
+                                chromatic_slider = gr.Slider(0, 3, 1, label="chromatic")
                                 chromatic_blur_checkbox = gr.Checkbox(label="Blur", value=False)
                                 chromatic_btn = gr.Button("refresh", variant="primary")
 
