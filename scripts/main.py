@@ -260,7 +260,7 @@ def add_tab():
         all_blend_set += all_alphas+all_mask_blur+all_mask_str+all_mode
         all_blend_input = all_blend_set + all_layers
         for component in all_blend_set:
-            component.release(blend.run(layers), all_blend_input, image_out)
+            component.change(blend.run(layers), all_blend_input, image_out)
         expand_btn.click(blend.run(layers), all_blend_input, image_out)
 
         #blur
