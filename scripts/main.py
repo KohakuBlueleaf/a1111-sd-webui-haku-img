@@ -260,19 +260,19 @@ def add_tab():
         all_blend_set += all_alphas+all_mask_blur+all_mask_str+all_mode
         all_blend_input = all_blend_set + all_layers
         for component in all_blend_set:
-            component.change(blend.run(layers), all_blend_input, image_out)
+            _release_if_possible(component, blend.run(layers), all_blend_input, image_out)
         expand_btn.click(blend.run(layers), all_blend_input, image_out)
 
         #blur
         all_blur_input = [image_eff, blur_slider]
-        blur_slider.release(blur.run, all_blur_input, outputs=image_out)
+        _release_if_possible(blur_slider, blur.run, all_blur_input, outputs=image_out)
         blur_btn.click(blur.run, all_blur_input, outputs=image_out)
 
         #chromatic
         all_chromatic_set = [chromatic_slider, chromatic_blur_checkbox]
         all_chromatic_input = [image_eff] + all_chromatic_set
         for component in all_chromatic_set:
-            component.release(chromatic.run, all_chromatic_input, image_out)
+            _release_if_possible(component, chromatic.run, all_chromatic_input, image_out)
         chromatic_btn.click(chromatic.run, all_chromatic_input, image_out)
 
         #lens distortion
@@ -282,7 +282,7 @@ def add_tab():
         ]
         all_lens_distortion_input = [image_eff] + all_lens_distortion_set
         for component in all_lens_distortion_set:
-            component.release(lens_distortion.run, all_lens_distortion_input, image_out)
+            _release_if_possible(component, lens_distortion.run, all_lens_distortion_input, image_out)
         lens_distortion_btn.click(lens_distortion.run, all_lens_distortion_input, image_out)
 
         #color
@@ -294,7 +294,7 @@ def add_tab():
         ]
         all_color_input = [image_eff] + all_color_set
         for component in all_color_set:
-            component.release(color.run, all_color_input, image_out)
+            _release_if_possible(component, color.run, all_color_input, image_out)
         color_btn.click(color.run, all_color_input, image_out)
         color_rst_btn.click(lambda:[0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0], None, all_color_set)
 
@@ -304,7 +304,7 @@ def add_tab():
         all_curve_input = [image_eff] + all_curve_set
         for index, components in enumerate(all_points):
             for component in components:
-                component.release(curve.curve_img, components, all_curves[index])
+                _release_if_possible(component, curve.curve_img, components, all_curves[index])
             curve_btn.click(curve.curve_img, components, all_curves[index])
         curve_btn.click(curve.run(points), all_curve_input, image_out)
         curve_rst_btn.click(lambda: all_curve_defaults, None, all_curve_set)
@@ -315,7 +315,7 @@ def add_tab():
         ]
         all_sk_input = [image_eff] + all_sk_set
         for component in all_sk_set:
-            component.release(sketch.run, all_sk_input, image_out)
+            _release_if_possible(component, sketch.run, all_sk_input, image_out)
         sketch_btn.click(sketch.run, all_sk_input, image_out)
         sketch_rst_btn.click(lambda: [0, 1.4, 1.6, -0.03, 10, 1, 'gray', False], None, all_sk_set)
 
@@ -325,7 +325,7 @@ def add_tab():
         ]
         all_p_input = [image_eff] + all_p_set
         for component in all_p_set:
-            component.release(pixel.run, all_p_input, image_out)
+            _release_if_possible(component, pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
         pixel_rst_btn.click(lambda: [16, 8, 0, 5, 'kmeans'], None, all_p_set)
 
@@ -335,7 +335,7 @@ def add_tab():
         ]
         all_neon_input = [image_eff] + all_neon_set
         for component in all_neon_set:
-            component.release(neon.run, all_neon_input, image_out)
+            _release_if_possible(component, neon.run, all_neon_input, image_out)
         neon_btn.click(neon.run, all_neon_input, image_out)
         neon_rst_btn.click(lambda: [16, 1, 'BS'], None, all_neon_set)
 
@@ -345,7 +345,7 @@ def add_tab():
         ]
         all_iop_input = [image_other] + all_iop_set
         for component in all_iop_set:
-            component.release(outpaint.run, all_iop_input, [image_out, image_mask])
+            _release_if_possible(component, outpaint.run, all_iop_input, [image_out, image_mask])
         iop_btn.click(outpaint.run, all_iop_input, [image_out, image_mask])
 
         #send
@@ -370,6 +370,13 @@ def add_tab():
         send_eff.click(None, _js = 'switch_to_haku_eff')
 
     return (demo , "HakuImg", "haku_img"),
+
+
+def _release_if_possible(component, *args, **kwargs):
+    if isinstance(component, gr.events.Releaseable):
+        component.release(*args, **kwargs)
+    else:
+        component.change(*args, **kwargs)
 
 
 def on_ui_settings():
