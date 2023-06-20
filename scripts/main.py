@@ -205,7 +205,7 @@ def add_tab():
                                 chromatic_blur_checkbox = gr.Checkbox(label="Blur", value=False)
                                 chromatic_btn = gr.Button("refresh", variant="primary")
 
-                            with gr.TabItem('Lens distortion (Fisheye)', elem_id='haku_LensDistortion'):
+                            with gr.TabItem("Lens distortion (Fisheye)", elem_id='haku_LensDistortion'):
                                 lens_distortion_k1_slider = gr.Slider(
                                     -1, 1, 0,
                                     label="Concavity of distortion of circles",
