@@ -17,7 +17,8 @@ from hakuimg import(
     pixel,
     neon,
     curve,
-    chromatic
+    chromatic,
+    lens_distortion
 )
 from inoutpaint import main as outpaint
 
@@ -204,6 +205,17 @@ def add_tab():
                                 chromatic_blur_checkbox = gr.Checkbox(label="Blur", value=False)
                                 chromatic_btn = gr.Button("refresh", variant="primary")
 
+                            with gr.TabItem('Lens distortion', elem_id='haku_LensDistortion'):
+                                lens_distortion_k1_slider = gr.Slider(
+                                    -1, 1, 0,
+                                    label="Concavity of distortion of circles",
+                                )
+                                lens_distortion_k2_slider = gr.Slider(
+                                    -1, 1, 0,
+                                    label="Amplification of distortion of circles",
+                                )
+                                lens_distortion_btn = gr.Button("refresh", variant="primary")
+
                     with gr.TabItem('Other'):
                         img_other_h_slider = gr.Slider(160, 1280, 320, step=10, label="Image preview height", elem_id='haku_img_h_oth')
                         image_other = gr.Image(type='numpy', label="img", elem_id='haku_img_other', show_label=False)
@@ -261,6 +273,16 @@ def add_tab():
         chromatic_slider.change(chromatic.run, all_chromatic_input, outputs=image_out)
         chromatic_blur_checkbox.change(chromatic.run, all_chromatic_input, outputs=image_out)
         chromatic_btn.click(chromatic.run, all_chromatic_input, outputs=image_out)
+
+        #lens distortion
+        all_lens_distortion_set = [
+            lens_distortion_k1_slider,
+            lens_distortion_k2_slider,
+        ]
+        all_lens_distortion_input = [image_eff] + all_lens_distortion_set
+        for component in all_lens_distortion_set:
+            component.change(lens_distortion.run, all_lens_distortion_input, image_out)
+        lens_distortion_btn.click(lens_distortion.run, all_lens_distortion_input, image_out)
 
         #color
         all_color_set = [
