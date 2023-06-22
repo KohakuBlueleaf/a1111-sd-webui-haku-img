@@ -115,7 +115,7 @@ def add_tab():
                         with gr.Tabs(elem_id='effect_tabs'):
                             with gr.TabItem('Color', elem_id='haku_color'):
                                 with gr.Row():
-                                    temp_slider = gr.Slider(-100, 100, 0, step=1, label="temparature")
+                                    temp_slider = gr.Slider(-100, 100, 0, step=1, label="temperature")
                                     hue_slider = gr.Slider(-90, 90, 0, step=1, label="hue")
                                 with gr.Row():
                                     bright_slider = gr.Slider(-100, 100, 0, step=1, label="brightness")

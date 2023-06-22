@@ -29,8 +29,8 @@ def get_hdr(img, value, original_img):
     inverted_color_dodge = ImageOps.invert(temp_img)
     black_white_color_dodge = ImageEnhance.Color(inverted_color_dodge).enhance(0)
     hue = blendLayers(temp_img, black_white_color_dodge, BlendType.HUE)
-    hdrImage = blendLayers(hue, temp_img, BlendType.NORMAL, 0.7)
+    hdr_image = blendLayers(hue, temp_img, BlendType.NORMAL, 0.7)
 
-    return blendLayers(img, hdrImage, BlendType.NORMAL, value * 2).convert(
+    return blendLayers(img, hdr_image, BlendType.NORMAL, value * 2).convert(
         "RGB"
     )
