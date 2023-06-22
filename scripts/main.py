@@ -21,6 +21,7 @@ from hakuimg import(
     lens_distortion,
     custom_exif,
     tilt_shift,
+    flip,
 )
 from inoutpaint import main as outpaint
 
@@ -204,7 +205,7 @@ def add_tab():
 
                             with gr.TabItem('Chromatic', elem_id='haku_Chromatic'):
                                 chromatic_slider = gr.Slider(0, 3, 1, label="chromatic")
-                                chromatic_blur_checkbox = gr.Checkbox(label="Blur", value=False)
+                                chromatic_blur = gr.Checkbox(label="Blur", value=False)
                                 chromatic_btn = gr.Button("refresh", variant="primary")
 
                             with gr.TabItem("Lens distortion (Fisheye)", elem_id="haku_LensDistortion"):
@@ -233,8 +234,11 @@ def add_tab():
                                 iop_l = gr.Slider(0, 512, 0, step=64, label='fill left')
                                 iop_r = gr.Slider(0, 512, 0, step=64, label='fill right')
                                 iop_btn = gr.Button("refresh", variant="primary")
+                            with gr.TabItem("Flip"):
+                                flip_axis = gr.Radio(["horizontal", "vertical"], value="horizontal", label="Axis")
+                                flip_btn = gr.Button("refresh", variant="primary")
                             with gr.TabItem("Custom EXIF"):
-                                custom_exif_area = gr.TextArea(label="Put your custom parameters here")
+                                custom_exif_area = gr.TextArea(label="Custom parameters")
                                 custom_exif_btn = gr.Button("refresh", variant="primary")
 
             with gr.Column():
@@ -279,7 +283,7 @@ def add_tab():
         blur_btn.click(blur.run, all_blur_input, outputs=image_out)
 
         #chromatic
-        all_chromatic_set = [chromatic_slider, chromatic_blur_checkbox]
+        all_chromatic_set = [chromatic_slider, chromatic_blur]
         all_chromatic_input = [image_eff] + all_chromatic_set
         for component in all_chromatic_set:
             _release_if_possible(component, chromatic.run, all_chromatic_input, image_out)
@@ -364,6 +368,13 @@ def add_tab():
         for component in all_iop_set:
             _release_if_possible(component, outpaint.run, all_iop_input, [image_out, image_mask])
         iop_btn.click(outpaint.run, all_iop_input, [image_out, image_mask])
+
+        #flip axis
+        all_ = [flip_axis]
+        input_ = [image_other] + all_
+        for component in all_:
+            _release_if_possible(component, flip.run, input_, image_out)
+        flip_btn.click(flip.run, input_, image_out)
 
         #custom exif
         all_ = [custom_exif_area]
