@@ -1,21 +1,17 @@
 #haku_blend_layers_tabs {
-  display: block;
+  display: flex;
+  flex-direction: row;
 }
 
 #haku_blend_layers_tabs > div{
   border: none;
-  margin-left: 6em;
-}
-
-#haku_blend_layers_tabs > div.flex-wrap{
-  float: left;
-  display: block;
   margin-left: 0;
-  width: 6em;
 }
 
-#haku_blend_layers_tabs > div.flex-wrap button{
-  display: block;
-  border-radius: 0;
-  text-align: left;
+#haku_blend_layers_tabs > .tab-nav{
+  flex-direction: column;
+}
+
+#haku_blend_layers_tabs > .tabitem{
+  width: 100%;
 }
