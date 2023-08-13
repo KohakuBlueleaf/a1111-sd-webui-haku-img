@@ -52,12 +52,14 @@ class Script(scripts.Script):
 
         val = kwargs.get("value", "")
         id = kwargs.get("elem_id", "")
+        print(id, val)
+        
         if id=='img_inpaint_base':
             inpaint_base = component
         if id=='img_inpaint_mask':
             inpaint_mask = component
 
-        if id=='extras_tab':
+        if id in {'extras_tab', 'txt2img_send_to_extras', 'img2img_send_to_extras'}:
             with gr.Accordion('HakuImg', open=False):
                 with gr.Column():
                     with gr.Accordion('Send to Blend', open=False):
@@ -79,7 +81,7 @@ class Script(scripts.Script):
 def add_tab():
     print('add tab')
     with gr.Blocks(analytics_enabled=False) as demo:
-        with FormRow().style(equal_height=False):
+        with FormRow(equal_height=False):
             with gr.Column():
                 with gr.Tabs(elem_id="haku_blend_tabs"):
                     with gr.TabItem('Blend', elem_id='haku_blend'):
@@ -382,6 +384,7 @@ def add_tab():
         custom_exif_btn.click(custom_exif.run, input_, image_out)
 
         #send
+        print(all_btns)
         for btns, btn3, img_src in all_btns:
             for btn, img in zip(btns, all_layers):
                 btn.click(gpc.image_from_url_text, img_src, img, _js="extract_image_from_gallery")
