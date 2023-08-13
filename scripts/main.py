@@ -52,8 +52,7 @@ class Script(scripts.Script):
 
         val = kwargs.get("value", "")
         id = kwargs.get("elem_id", "")
-        print(id, val)
-        
+
         if id=='img_inpaint_base':
             inpaint_base = component
         if id=='img_inpaint_mask':
