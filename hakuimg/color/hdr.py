@@ -23,14 +23,10 @@ def get_hdr(img, value, original_img):
     color_dodge = converted_original_img / (1 - converted_sharped)
     converted_color_dodge = (255 * color_dodge).clip(0, 255).astype(np.uint8)
 
-    temp_img = Image.fromarray(
-        cv2.cvtColor(converted_color_dodge, cv2.COLOR_BGR2RGB)
-    )
+    temp_img = Image.fromarray(cv2.cvtColor(converted_color_dodge, cv2.COLOR_BGR2RGB))
     inverted_color_dodge = ImageOps.invert(temp_img)
     black_white_color_dodge = ImageEnhance.Color(inverted_color_dodge).enhance(0)
     hue = blendLayers(temp_img, black_white_color_dodge, BlendType.HUE)
     hdr_image = blendLayers(hue, temp_img, BlendType.NORMAL, 0.7)
 
-    return blendLayers(img, hdr_image, BlendType.NORMAL, value * 2).convert(
-        "RGB"
-    )
+    return blendLayers(img, hdr_image, BlendType.NORMAL, value * 2).convert("RGB")

@@ -3,17 +3,17 @@ from PIL import Image
 from .kromo import add_chromatic
 
 
-def run(np_img, strength, blur = False):
+def run(pil_img, strength, blur=False):
     if strength <= 0:
-        return np_img
+        return pil_img
 
-    img = Image.fromarray(np_img)
+    img = pil_img
 
-    if (img.size[0] % 2 == 0 or img.size[1] % 2 == 0):
-        if (img.size[0] % 2 == 0):
+    if img.size[0] % 2 == 0 or img.size[1] % 2 == 0:
+        if img.size[0] % 2 == 0:
             img = img.crop((0, 0, img.size[0] - 1, img.size[1]))
             img.load()
-        if (img.size[1] % 2 == 0):
+        if img.size[1] % 2 == 0:
             img = img.crop((0, 0, img.size[0], img.size[1] - 1))
             img.load()
 

@@ -1,7 +1,6 @@
 from PIL import Image, ImageFilter
 
 
-def run(img3, img_blur):
-    img = Image.fromarray(img3)
+def run(img, img_blur):
     blur = ImageFilter.GaussianBlur(img_blur)
     return img.filter(blur)

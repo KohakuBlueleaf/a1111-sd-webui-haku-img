@@ -1,11 +1,9 @@
 from PIL import Image
 
 
-def run(np_img, text):
+def run(img, text):
     if not text:
-        return np_img
+        return img
 
-    img = Image.fromarray(np_img)
     img.info["parameters"] = text
-
     return img
