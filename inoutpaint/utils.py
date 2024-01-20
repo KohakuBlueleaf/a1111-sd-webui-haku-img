@@ -6,15 +6,12 @@ from PIL import Image
 
 
 def resize_with_mask(
-    img: Image.Image, expands: tuple[int, int, int, int]
+    img: Image.Image, w, h, t, b, l, r,
 ) -> tuple[Image.Image, Image.Image]:
-    w, h = img.size
-    u, d, l, r = expands
+    new_img = Image.new("RGB", (w, h))
+    new_img.paste(img, (l, t))
 
-    new_img = Image.new("RGB", (w + l + r, h + u + d))
-    new_img.paste(img, (l, u))
-
-    mask = Image.new("L", (w + l + r, h + u + d), 255)
-    mask_none = Image.new("L", (w, h), 0)
-    mask.paste(mask_none, (l, u))
+    mask = Image.new("L", (w, h), 255)
+    mask_none = Image.new("L", (r-l, b-t), 0)
+    mask.paste(mask_none, (l, t))
     return new_img, mask

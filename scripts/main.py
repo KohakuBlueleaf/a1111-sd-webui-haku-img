@@ -357,12 +357,30 @@ def add_tab():
                         )
                         with gr.Tabs(elem_id="function list"):
                             with gr.TabItem("InOutPaint"):
-                                iop_u = gr.Slider(0, 512, 0, step=64, label="fill up")
-                                iop_d = gr.Slider(0, 512, 0, step=64, label="fill down")
-                                iop_l = gr.Slider(0, 512, 0, step=64, label="fill left")
-                                iop_r = gr.Slider(
-                                    0, 512, 0, step=64, label="fill right"
-                                )
+                                with gr.Row():
+                                    with gr.Column():
+                                        iop_width = gr.Number(
+                                            value=512, label="output width"
+                                        )
+                                    with gr.Column():
+                                        iop_height = gr.Number(
+                                            value=512, label="output Height"
+                                        )
+                                with gr.Row():
+                                    with gr.Column():
+                                        iop_align_top = gr.Number(
+                                            value=0, label="align top"
+                                        )
+                                        iop_align_left = gr.Number(
+                                            value=0, label="align left"
+                                        )
+                                    with gr.Column():
+                                        iop_align_bottom = gr.Number(
+                                            value=512, label="align bottom"
+                                        )
+                                        iop_align_right = gr.Number(
+                                            value=512, label="align right"
+                                        )
                                 iop_btn = gr.Button("refresh", variant="primary")
                             with gr.TabItem("Flip"):
                                 flip_axis = gr.Radio(
@@ -546,7 +564,14 @@ def add_tab():
         tilt_shift_btn.click(tilt_shift.run, input_, image_out)
 
         # iop
-        all_iop_set = [iop_u, iop_d, iop_l, iop_r]
+        all_iop_set = [
+            iop_width,
+            iop_height,
+            iop_align_top,
+            iop_align_bottom,
+            iop_align_left,
+            iop_align_right,
+        ]
         all_iop_input = [image_other] + all_iop_set
         for component in all_iop_set:
             _release_if_possible(
