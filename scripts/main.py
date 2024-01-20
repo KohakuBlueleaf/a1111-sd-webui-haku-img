@@ -1,11 +1,14 @@
 from __future__ import annotations
 from typing import Any, Tuple, List, Union
 
+from PIL import Image
+
 from modules import shared
 from modules import scripts
 from modules import script_callbacks
 from modules import generation_parameters_copypaste as gpc
 from modules.ui_components import FormRow
+from modules.images import save_image
 
 import gradio as gr
 
@@ -75,6 +78,15 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         return []
+
+
+def save_img(img: Image):
+    save_image(
+        img,
+        shared.opts.data.get("hakuimg_saving_path", "outputs/hakuimg"),
+        "",
+        existing_info=img.info
+    )
 
 
 def add_tab():
@@ -385,6 +397,8 @@ def add_tab():
                 )
                 image_mask = gr.Image(visible=False)
                 with gr.Row():
+                    save_btn = gr.Button("save image", elem_id="save_haku")
+                with gr.Row():
                     send_btns = gpc.create_buttons(["img2img", "inpaint", "extras"])
                     send_ip_b = gr.Button(
                         "Send to inpaint upload", elem_id="send_inpaint_base"
@@ -552,6 +566,9 @@ def add_tab():
         input_ = [image_other] + all_
         custom_exif_btn.click(custom_exif.run, input_, image_out)
 
+        # save
+        save_btn.click(save_img, image_out, None)
+
         # send
         print(all_btns)
         for btns, btn3, img_src in all_btns:
@@ -598,6 +615,12 @@ def _release_if_possible(component, *args, **kwargs):
 
 def on_ui_settings():
     section = ("haku-img", "HakuImg")
+    shared.opts.add_option(
+        "hakuimg_saving_path",
+        shared.OptionInfo(
+            "outputs/hakuimg", "HakuImg saving path", gr.Textbox, {"show_label": False}, section=section
+        ),
+    )
     shared.opts.add_option(
         "hakuimg_layer_num",
         shared.OptionInfo(5, "Total num of layers (reload required)", section=section),
