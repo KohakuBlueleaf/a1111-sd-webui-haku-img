@@ -37,24 +37,3 @@ def run(img, w, h, t, b, l, r, mode="fill"):
         )
 
     return new_img, mask, f"{w_n} x {h_n}"
-
-
-if __name__ == "__main__":
-    img = Image.open(
-        "./01491-2023-01-21_d7ff2a1d60_KBlueLeaf_KBlueLeaf_856221927-768x512.png"
-    )
-    new, mask, _ = run(np.array(img), 64, 192, 64, 64)
-
-    w, h = new.size
-
-    if w > h:
-        demo = Image.new("RGB", (w, h * 2))
-        demo.paste(new, box=(0, 0))
-        demo.paste(mask, box=(0, h))
-    else:
-        demo = Image.new("RGB", (w * 2, h))
-        demo.paste(new, box=(0, 0))
-        demo.paste(mask, box=(w, 0))
-    new.save("./test-img.png")
-    mask.save("./test-mask.png")
-    demo.show()
