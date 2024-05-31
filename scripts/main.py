@@ -18,6 +18,7 @@ from hakuimg import (
     color,
     sketch,
     pixel,
+    pixeloe,
     neon,
     curve,
     chromatic,
@@ -286,6 +287,39 @@ def add_tab():
                                     pixel_btn = gr.Button("refresh", variant="primary")
                                     pixel_rst_btn = gr.Button("reset")
 
+                            with gr.TabItem("Pixeloe", elem_id="haku_Pixeloe"):
+                                poe_target_size = gr.Slider(
+                                    2, 512, 256, step=1, label="target size"
+                                )
+                                poe_patch_size = gr.Slider(
+                                    2, 128, 8, step=1, label="patch size"
+                                )
+                                poe_thickness = gr.Slider(
+                                    2, 64, 2, step=1, label="thickness"
+                                )
+                                poe_colors = gr.Slider(
+                                    0, 100, 0, step=1, label="colors"
+                                )
+                                with gr.Row():
+                                    poe_contrast = gr.Slider(
+                                        1, 16, 1.0, step=0.05, label="contrast"
+                                    )
+                                    poe_saturation = gr.Slider(
+                                        1, 16, 1.0, step=0.05, label="saturation"
+                                    )
+                                poe_mode = gr.Radio(
+                                    ["contrast", "center", "k-centroid", "bicubic", "nearest"],
+                                    value="contrast",
+                                    label="Downscale mode",
+                                )
+                                poe_no_color_matching = gr.Checkbox(label="no color matching", value=False)
+                                poe_no_upscale = gr.Checkbox(label="no upscale", value=False)
+                                poe_no_downscale = gr.Checkbox(label="no downscale", value=False)
+
+                                with gr.Row():
+                                    pixeloe_btn = gr.Button("refresh", variant="primary")
+                                    pixeloe_rst_btn = gr.Button("reset")
+
                             with gr.TabItem("Glow", elem_id="haku_Glow"):
                                 neon_mode = gr.Radio(
                                     ["BS", "BMBL"], value="BS", label="Glow mode"
@@ -533,6 +567,25 @@ def add_tab():
             _release_if_possible(component, pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
         pixel_rst_btn.click(lambda: [16, 8, 0, 5, "kmeans"], None, all_p_set)
+
+        # pixeloe
+        all_poe_set = [
+            poe_target_size,
+            poe_patch_size,
+            poe_thickness,
+            poe_colors,
+            poe_contrast,
+            poe_saturation,
+            poe_mode,
+            poe_no_color_matching,
+            poe_no_upscale,
+            poe_no_downscale,
+        ]
+        all_poe_input = [image_eff] + all_poe_set
+        for component in all_poe_set:
+            _release_if_possible(component, pixeloe.run, all_poe_input, image_out)
+        pixeloe_btn.click(pixeloe.run, all_poe_input, image_out)
+        pixeloe_rst_btn.click(lambda: [256, 8, 2, 0, 1.0, 1.0, "constrast", False, False, False], None, all_poe_set)
 
         # neon
         all_neon_set = [
