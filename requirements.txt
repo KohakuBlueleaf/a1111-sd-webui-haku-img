@@ -1,0 +1,9 @@
+torch
+torchvision
+pillow
+numpy
+opencv-python
+scipy
+matplotlib
+blendmodes
+pixeloe>=0.1.4

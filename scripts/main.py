@@ -18,6 +18,8 @@ from hakuimg import (
     color,
     sketch,
     pixel,
+    pixeloe,
+    outline_expansion,
     neon,
     curve,
     chromatic,
@@ -286,6 +288,60 @@ def add_tab():
                                     pixel_btn = gr.Button("refresh", variant="primary")
                                     pixel_rst_btn = gr.Button("reset")
 
+                            with gr.TabItem("PixelOE", elem_id="haku_PixelOE"):
+                                pixeloe_pixel_size = gr.Slider(
+                                    1, 32, 4, step=1, label="pixel size"
+                                )
+                                pixeloe_thickness = gr.Slider(
+                                    0, 6, 2, step=1, label="thickness"
+                                )
+                                pixeloe_num_colors = gr.Slider(
+                                    2, 256, 256, step=1, label="num colors"
+                                )
+                                pixeloe_mode = gr.Radio(
+                                    ["contrast", "k_centroid", "lanczos", "nearest", "bilinear"],
+                                    value="contrast",
+                                    label="mode",
+                                )
+                                pixeloe_quant_mode = gr.Radio(
+                                    ["kmeans", "weighted-kmeans", "repeat-kmeans"],
+                                    value="kmeans",
+                                    label="quant mode",
+                                )
+                                pixeloe_dither_mode = gr.Radio(
+                                    ["ordered", "error_diffusion", "none"],
+                                    value="ordered",
+                                    label="dither mode",
+                                )
+                                pixeloe_device = gr.Radio(
+                                    ["default", "cpu", "cuda", "mps"],
+                                    value="default",
+                                    label="device",
+                                )
+                                pixeloe_color_quant = gr.Checkbox(label="color quant", value=False)
+                                pixeloe_no_post_upscale = gr.Checkbox(label="no post upscale", value=False)
+
+                                with gr.Row():
+                                    pixeloe_btn = gr.Button("refresh", variant="primary")
+                                    pixeloe_rst_btn = gr.Button("reset")
+
+                            with gr.TabItem("OutlineExpansion", elem_id="haku_OutlineExpansion"):
+                                outline_expansion_pixel_size = gr.Slider(
+                                    1, 32, 4, step=1, label="pixel size"
+                                )
+                                outline_expansion_thickness = gr.Slider(
+                                    1, 6, 3, step=1, label="thickness"
+                                )
+                                outline_expansion_device = gr.Radio(
+                                    ["default", "cpu", "cuda", "mps"],
+                                    value="default",
+                                    label="device",
+                                )
+
+                                with gr.Row():
+                                    outline_expansion_btn = gr.Button("refresh", variant="primary")
+                                    outline_expansion_rst_btn = gr.Button("reset")
+
                             with gr.TabItem("Glow", elem_id="haku_Glow"):
                                 neon_mode = gr.Radio(
                                     ["BS", "BMBL"], value="BS", label="Glow mode"
@@ -533,6 +589,36 @@ def add_tab():
             _release_if_possible(component, pixel.run, all_p_input, image_out)
         pixel_btn.click(pixel.run, all_p_input, image_out)
         pixel_rst_btn.click(lambda: [16, 8, 0, 5, "kmeans"], None, all_p_set)
+
+        # pixeloe
+        all_pixeloe_set = [
+            pixeloe_pixel_size,
+            pixeloe_thickness,
+            pixeloe_num_colors,
+            pixeloe_mode,
+            pixeloe_quant_mode,
+            pixeloe_dither_mode,
+            pixeloe_device,
+            pixeloe_color_quant,
+            pixeloe_no_post_upscale
+        ]
+        all_pixeloe_input = [image_eff] + all_pixeloe_set
+        for component in all_pixeloe_set:
+            _release_if_possible(component, pixeloe.run, all_pixeloe_input, image_out)
+        pixeloe_btn.click(pixeloe.run, all_pixeloe_input, image_out)
+        pixeloe_rst_btn.click(lambda: [4, 2, 256, "constrast", "kmeans", "kmeans", "default", False, False], None, all_pixeloe_set)
+
+        # outline expansion
+        all_outline_expansion_set = [
+            outline_expansion_pixel_size,
+            outline_expansion_thickness,
+            outline_expansion_device
+        ]
+        all_outline_expansion_input = [image_eff] + all_outline_expansion_set
+        for component in all_outline_expansion_set:
+            _release_if_possible(component, outline_expansion.run, all_outline_expansion_input, image_out)
+        outline_expansion_btn.click(outline_expansion.run, all_outline_expansion_input, image_out)
+        outline_expansion_rst_btn.click(lambda: [4, 3, "default"], None, all_outline_expansion_set)
 
         # neon
         all_neon_set = [
